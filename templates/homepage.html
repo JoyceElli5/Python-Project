@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="../static/css/home.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header>
+            <nav>
+                <div class="logo">MoneyTrack</div>
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/add">Add</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/display">History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/limit">LIMIT</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Report
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/today">TODAY</a>
+                            <a class="dropdown-item" href="/month">Month</a>
+                            <a class="dropdown-item" href="/year">Year</a>
+                        </div>
+                    </li>
+                </ul>
+                <div class="user-profile">
+                    <div class="notification">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                    <div class="profile">
+                        {{ session.get('username', 'Guest') }}
+                        <!-- <div class="avatar">JM</div> -->
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="content-left" data-aos="fade-right" data-aos-duration="800">
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-title">Debit Card · 2376</div>
+                            <div class="card-amount">GH$13.56</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-title">Credit Card · 1144</div>
+                            <div class="card-amount">GH$241.22</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-title">Debit Card · 9131</div>
+                            <div class="card-amount">GH$1131.79</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="balance-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="balance-header">
+                        <div>Balance</div>
+                        <div class="card-circles">
+                            <div class="circle"></div>
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                    <div class="balance-amount">GH$12245.41</div>
+                    <div class="card-number">•••• •••• •••• 1322</div>
+                </div>
+            </div>
+
+            <div class="content-middle" data-aos="fade-up" data-aos-duration="800">
+                <div class="dashboard">
+                    <div class="dashboard-header">
+                        <h2>Budget</h2>
+                        <div class="period-selector">
+                            <select>
+                                <option>Period</option>
+                                <option>Weekly</option>
+                                <option>Monthly</option>
+                                <option>Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="budget-highlight">GH$5512.22</div>
+
+                    <div class="chart-container">
+                        <canvas id="budgetChart"></canvas>
+                        <div class="chart-dates">
+                            <span>18 dec</span>
+                            <span>25 dec</span>
+                            <span>1 jan</span>
+                            <span>8 jan</span>
+                            <span>15 jan</span>
+                            <span>22 jan</span>
+                            <span>29 jan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-right">
+                <div class="transactions-container" data-aos="fade-left" data-aos-duration="800">
+                    <h2>Recent transactions</h2>
+                    <div class="transactions">
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <i class="fa-brands fa-dribbble"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-name">Dribbble</div>
+                                    <div class="transaction-date">8 July · 11:15 AM</div>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">- GH$10.67</div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <span>N</span>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-name">Netflix</div>
+                                    <div class="transaction-date">7 July · 7:50 PM</div>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">- $12.01</div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <i class="fa-solid fa-house"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-name">Airbnb</div>
+                                    <div class="transaction-date">5 July · 11:17 AM</div>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">- $112.43</div>
+                        </div>
+
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <span>X</span>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-name">X subscribe</div>
+                                    <div class="transaction-date">5 July · 09:35 AM</div>
+                                </div>
+                            </div>
+                            <div class="transaction-amount">- $16.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="budget-categories" data-aos="fade-up" data-aos-delay="300">
+                    <div class="progress-container">
+                        <div class="circular-progress">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="progress-bar" cx="50" cy="50" r="45" stroke-dasharray="282.7"
+                                    stroke-dashoffset="45.2"></circle>
+                            </svg>
+                            <div class="progress-content">
+                                <div class="progress-percentage">84<span>%</span></div>
+                                <div class="progress-label">budget for these categories</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-pills">
+                        <div class="pill active">
+                            <i class="fa-solid fa-heart"></i>
+                            <span>Rent</span>
+                        </div>
+                        <div class="pill">
+                            <i class="fa-solid fa-utensils"></i>
+                            <span>Food</span>
+                        </div>
+                        <div class="pill">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>Gift's</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="promo-banner" data-aos="fade-left" data-aos-delay="400">
+                <div class="promo-content">
+                    <h3>Earn more</h3>
+                    <p>spend less</p>
+                    <div class="promo-footer">
+                        <p>Upgrade your plan</p>
+                        <p>to Premium to get all benefits</p>
+                    </div>
+                </div>
+                <div class="promo-decoration"></div>
+            </div> -->
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../static/js/home.js"></script>
+</body>
+
+</html>

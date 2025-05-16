@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Expenses | MyBudget{% endblock %}
+
+{% block body %}
+<h2 class="page-title"><i class="fas fa-history"></i> EXPENSES</h2>
+
+<div class="expense-list">
+    {% if expense %}
+    {% for row in expense %}
+    <div class="expense-card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-2">
+                    <span class="date-badge">{{row[2]}}</span>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="mb-0">{{row[3]}}</h6>
+                </div>
+                <div class="col-md-2">
+                    <span class="text-danger font-weight-bold">GH${{row[4]}}</span>
+                </div>
+                <div class="col-md-2">
+                    <span class="payment-badge">{{row[5]}}</span>
+                </div>
+                <div class="col-md-2">
+                    <span class="category-badge">{{row[6]}}</span>
+                </div>
+                <div class="col-md-2 d-flex">
+                    <a href="/edit/{{row[0]}}" class="btn-action btn-edit mr-2">Edit</a>
+                    <a href="/delete/{{row[0]}}" class="btn-action btn-delete btnDelete">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <h5><a href="/add">ADD-DATA</a> to Display</h5>
+        <img src="../static/images/not-found.png" alt="No data found" class="img-fluid">
+    </div>
+    {% endif %}
+</div>
+
+{% if expense %}
+<div class="row mt-5">
+    <div class="col-md-6">
+        <h3 class="breakdown-title">Expense Breakdown</h3>
+
+        <div class="breakdown-card">
+            <div class="breakdown-card-body">
+                <div class="category-name">Food</div>
+                <div id="tfood" class="category-amount">GHc{{ t_food }}</div>
+            </div>
+        </div>
+
+        <div class="breakdown-card">
+            <div class="breakdown-card-body">
+                <div class="category-name">Entertainment</div>
+                <div id="tentertainment" class="category-amount">GHc {{ t_entertainment }}</div>
+            </div>
+        </div>
+
+        <div class="breakdown-card">
+            <div class="breakdown-card-body">
+                <div class="category-name">Business</div>
+                <div id="tbusiness" class="category-amount">GHc{{ t_business }}</div>
+            </div>
+        </div>
+
+        <div class="breakdown-card">
+            <div class="breakdown-card-body">
+                <div class="category-name">Rent</div>
+                <div id="trent" class="category-amount">GHc{{ t_rent }}</div>
+            </div>
+        </div>
+
+        <div class="breakdown-card">
+            <div class="breakdown-card-body">
+                <div class="category-name">EMI</div>
+                <div id="temi" class="category-amount">GHc{{ t_EMI }}</div>
+            </div>
+        </div>
+
+        <div class="breakdown-card">
+            <div class="breakdown-card-body">
+                <div class="category-name">Other</div>
+                <div id="tother" class="category-amount">GHc{{ t_other }}</div>
+            </div>
+        </div>
+
+        <div class="breakdown-card total-card">
+            <div class="breakdown-card-body">
+                <div class="category-name">Total</div>
+                <div class="category-amount">GHc {{ total }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if expense %}
+        // Get values from the HTML elements
+        let food = document.getElementById('tfood').innerHTML.replace('₹ ', '').trim();
+        let entertainment = document.getElementById('tentertainment').innerHTML.replace('₹ ', '').trim();
+        let business = document.getElementById('tbusiness').innerHTML.replace('₹ ', '').trim();
+        let rent = document.getElementById('trent').innerHTML.replace('₹ ', '').trim();
+        let emi = document.getElementById('temi').innerHTML.replace('₹ ', '').trim();
+        let other = document.getElementById('tother').innerHTML.replace('₹ ', '').trim();
+
+        // Create the chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Food', 'Entertainment', 'Business', 'Rent', 'EMI', 'Other'],
+                datasets: [{
+                    label: 'Expenses Chart',
+                    data: [food, entertainment, business, rent, emi, other],
+                    backgroundColor: [
+                        '#f87171', // red
+                        '#1e293b', // dark blue
+                        '#facc15', // yellow
+                        '#94a3b8', // gray
+                        '#3b82f6', // blue
+                        '#f97316'  // orange
+                    ],
+                    borderWidth: 1,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            },
+                            padding: 20
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'EXPENSE BREAKDOWN',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                },
+                cutout: '65%',
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+        {% endif %}
+
+        // Add confirmation for delete buttons
+        document.querySelectorAll('.btnDelete').forEach(button => {
+            button.addEventListener('click', function (e) {
+                if (!confirm('Are you sure you want to delete this expense?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

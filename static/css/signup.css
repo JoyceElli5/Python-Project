@@ -1,0 +1,117 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+body {
+  font-family: "Raleway", sans-serif;
+  background-color: #f4f7fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.form {
+  width: 400px;
+}
+.dashboard {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.form-header h2 {
+  margin-bottom: 30px;
+}
+.dashboard-header h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Input Group Styling */
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 40px;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  border: none;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #5c6bc0; /* Subtle blue color */
+}
+
+.input-group img {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+}
+
+.input-group input::placeholder {
+  color: #999;
+}
+
+.btn {
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  margin-top: 20px;
+  position: relative;
+}
+
+.btn-primary {
+  background-color: #111;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #333;
+  cursor: pointer;
+}
+
+/* Sign in link styling */
+.conditions {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-top: 15px;
+}
+
+.conditions a {
+  color: #5c6bc0;
+  text-decoration: none;
+}
+
+.conditions a:hover {
+  text-decoration: underline;
+}
+.subtitle {
+  font-size: 14px;
+}
+
+.terms-checkbox {
+  font-size: 14px;
+  position: relative;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  gap: 2px;
+}
