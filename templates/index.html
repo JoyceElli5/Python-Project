@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyTrack - Efficient Money Tracking & Management</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Handlee&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pacifico&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poetsen+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Satisfy&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo" data-aos="fade-down" data-aos-duration="800">MoneyTrack<img class="analytics-image"
+                    src="../static/images/analysis.png" alt="image"></div>
+        </header>
+
+        <main>
+            <div class="content-left">
+                <div class="new-badge" data-aos="fade-right" data-aos-duration="800" data-aos-delay="200">
+                    <span class="new-label">NEW!</span>
+                    <span class="new-text">MoneyTrack is now available on iOS</span>
+                </div>
+
+                <h1 data-aos="fade-right" data-aos-duration="800" data-aos-delay="400">Efficient Money <br>Tracking
+                    <br>& Management
+                </h1>
+
+                <p class="subtitle" data-aos="fade-right" data-aos-duration="800" data-aos-delay="600">Take full control
+                    of your money and achieve financial stability with MoneyTrack</p>
+
+                <div class="cta-buttons" data-aos="zoom-out-up" data-aos-duration="800" data-aos-delay="800">
+                    <a href="/signup" class="btn btn-primary">Start Here</a>
+                    <a href="#" class="btn btn-secondary">Learn more <span class="arrow">→</span></a>
+                </div>
+            </div>
+
+            <div class="content-right" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="300">
+                <div class="dashboard">
+                    <div class="dashboard-header">
+                        <div class="total-amount" data-aos="fade-down" data-aos-duration="800" data-aos-delay="600">
+                            <h2>$30,196</h2>
+                            <p>Total money spent for the period</p>
+                        </div>
+                        <div class="period-selector" data-aos="fade-down" data-aos-duration="800" data-aos-delay="700">
+                            <span>Period: </span>
+                            <select id="period">
+                                <option selected>2023</option>
+                                <option>2022</option>
+                                <option>2021</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="category-pills" data-aos="fade-up" data-aos-duration="800" data-aos-delay="800">
+                        <button class="add-category">+</button>
+                        <span class="pill active">Restaurants & Food</span>
+                        <span class="pill">Medicine</span>
+                    </div>
+
+                    <div class="chart-container" data-aos="fade-left" data-aos-duration="800" data-aos-delay="900">
+                        <div class="chart">
+                            <div class="tooltip" id="tooltip">
+                                <div class="tooltip-header">
+                                    <span>Aug, 2023</span>
+                                    <span class="tooltip-amount">$3,800</span>
+                                </div>
+                                <div class="tooltip-item">
+                                    <span class="dot"></span>
+                                    <span>Restaurants & Food</span>
+                                    <span class="amount">$586</span>
+                                </div>
+                                <div class="tooltip-item">
+                                    <span class="dot"></span>
+                                    <span>Medicine</span>
+                                    <span class="amount">$1,467</span>
+                                </div>
+                                <div class="tooltip-item">
+                                    <span class="dot"></span>
+                                    <span>Other expenses</span>
+                                    <span class="amount">$1,747</span>
+                                </div>
+                            </div>
+
+                            <div class="chart-bars">
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="900">
+                                    <div class="bar" style="height: 40%"></div>
+                                    <span>Jan</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="950">
+                                    <div class="bar" style="height: 60%"></div>
+                                    <span>Feb</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1000">
+                                    <div class="bar" style="height: 45%"></div>
+                                    <span>Mar</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1050">
+                                    <div class="bar" style="height: 70%"></div>
+                                    <span>Apr</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1100">
+                                    <div class="bar" style="height: 55%"></div>
+                                    <span>May</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1150">
+                                    <div class="bar" style="height: 65%"></div>
+                                    <span>Jun</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1200">
+                                    <div class="bar" style="height: 50%"></div>
+                                    <span>Jul</span>
+                                </div>
+                                <div class="month active" data-aos="fade-up" data-aos-duration="400"
+                                    data-aos-delay="1250">
+                                    <div class="bar" style="height: 80%"></div>
+                                    <span>Aug</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1300">
+                                    <div class="bar" style="height: 60%"></div>
+                                    <span>Sep</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1350">
+                                    <div class="bar" style="height: 70%"></div>
+                                    <span>Oct</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1400">
+                                    <div class="bar" style="height: 45%"></div>
+                                    <span>Nov</span>
+                                </div>
+                                <div class="month" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1450">
+                                    <div class="bar" style="height: 55%"></div>
+                                    <span>Dec</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="../static/js/landing-script.js"></script>
+</body>
+
+</html>
