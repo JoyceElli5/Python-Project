@@ -52,16 +52,18 @@ def register():
         account = cursor.fetchone()
         print(account)
         if account:
-            msg = 'Account already exists !'
+            flash ('Account already exists !', "error")
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address !'
+            flash ( 'Invalid email address !', "error")
         elif not re.match(r'[A-Za-z0-9]+', username):
-            msg = 'name must contain only characters and numbers !'
+            flash('name must contain only characters and numbers', "error")
         else:
             cursor.execute('INSERT INTO register VALUES (NULL, % s, % s, % s)', (username, email,password))
             mysql.connection.commit()
-            msg = 'You have successfully registered !'
+            flash('You have successfully registered !',"success")
             return redirect('/signin')  
+        
+    return render_template('signup.html')    
         
         
  
@@ -91,6 +93,7 @@ def login():
             session['id'] = account[0]
             userid=  account[0]
             session['email'] = account[1]
+            session['username'] = account[1]
             flash("login successful","success")
             return redirect('/home')
         else:
