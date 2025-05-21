@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, session 
+from flask import Flask, render_template, request, redirect, session, flash, url_for 
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+
 
 
 app = Flask(__name__)
@@ -67,34 +68,30 @@ def register():
         
  #LOGIN--PAGE
     
-@app.route("/signin")
-def signin():
-    return render_template("login.html")
-        
-@app.route('/login',methods =['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     global userid
-    msg = ''
-   
-  
-    if request.method == 'POST' :
+
+    if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM register WHERE email = % s AND password = % s', (email, password ),)
+        cursor.execute('SELECT * FROM register WHERE email = %s AND password = %s', (email, password))
         account = cursor.fetchone()
-        print (account)
         
         if account:
             session['loggedin'] = True
             session['id'] = account[0]
-            userid=  account[0]
+            userid = account[0]
             session['email'] = account[1]
-           
+            flash("Login successful!", "success")
             return redirect('/home')
         else:
-            msg = 'Incorrect email / password !'
-    return render_template('login.html', msg = msg)
+            flash("Invalid credentials", "error")
+
+    return render_template('login.html')
+
 
 
 
