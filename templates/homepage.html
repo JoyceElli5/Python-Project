@@ -9,11 +9,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="../static/css/home.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body>
     <div class="dashboard-container">
         <header>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
+  {% endfor %}
+{% endwith %}
             <nav>
                 <div class="logo">MoneyTrack</div>
                 <ul class="navbar-nav mr-auto">
@@ -227,6 +236,21 @@
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../static/js/home.js"></script>
+    <script>
+  document.querySelectorAll('.flash-data').forEach(el => {
+    const message = el.dataset.message;
+    const category = el.dataset.category;
+
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor: category === "success" ? "green" : "red",
+      close: true
+    }).showToast();
+  });
+</script>
 </body>
 
 </html>

@@ -18,11 +18,7 @@
 <body>
   <!-- Header -->
   <section id="header">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-  {% for category, message in messages %}
-    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
-  {% endfor %}
-{% endwith %}
+
     <div class="header container">
       <div class="nav-bar">
         <div class="brand">
@@ -178,21 +174,7 @@
   </section>
   <!-- End Footer -->
   <script src="..\static\js\home.js"></script>
-  <script>
-  document.querySelectorAll('.flash-data').forEach(el => {
-    const message = el.dataset.message;
-    const category = el.dataset.category;
-
-    Toastify({
-      text: message,
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: category === "success" ? "green" : "red",
-      close: true
-    }).showToast();
-  });
-</script>
+  
 </body>
 
 </html>

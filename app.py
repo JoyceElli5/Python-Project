@@ -68,30 +68,34 @@ def register():
         
  #LOGIN--PAGE
     
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/signin")
+def signin():
+    return render_template("login.html")
+        
+@app.route('/login',methods =['GET', 'POST'])
 def login():
     global userid
-
-    if request.method == 'POST':
+    msg = ''
+   
+  
+    if request.method == 'POST' :
         email = request.form['email']
         password = request.form['password']
-        
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM register WHERE email = %s AND password = %s', (email, password))
+        cursor.execute('SELECT * FROM register WHERE email = % s AND password = % s', (email, password ),)
         account = cursor.fetchone()
+        print (account)
         
         if account:
             session['loggedin'] = True
             session['id'] = account[0]
-            userid = account[0]
+            userid=  account[0]
             session['email'] = account[1]
-            flash("Login successful!", "success")
+            flash("login successful","success")
             return redirect('/home')
         else:
-            flash("Invalid credentials", "error")
-
-    return render_template('login.html')
-
+            flash("invalid credentials","error")
+    return render_template('login.html', msg = msg)
 
 
 
