@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, session 
+from flask import Flask, render_template, request, redirect, session, flash, url_for 
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+
 
 
 app = Flask(__name__)
@@ -11,7 +12,7 @@ app.secret_key = 'a'
   
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '918273645'
+app.config['MYSQL_PASSWORD'] = 'plantain2020'
 app.config['MYSQL_DB'] = 'expense_tracker'
 
 mysql = MySQL(app)
@@ -51,16 +52,18 @@ def register():
         account = cursor.fetchone()
         print(account)
         if account:
-            msg = 'Account already exists !'
+            flash ('Account already exists !', "error")
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address !'
+            flash ( 'Invalid email address !', "error")
         elif not re.match(r'[A-Za-z0-9]+', username):
-            msg = 'name must contain only characters and numbers !'
+            flash('name must contain only characters and numbers', "error")
         else:
             cursor.execute('INSERT INTO register VALUES (NULL, % s, % s, % s)', (username, email,password))
             mysql.connection.commit()
-            msg = 'You have successfully registered !'
+            flash('You have successfully registered !',"success")
             return redirect('/signin')  
+        
+    return render_template('signup.html')    
         
         
  
@@ -78,10 +81,10 @@ def login():
    
   
     if request.method == 'POST' :
-        username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM register WHERE username = % s AND password = % s', (username, password ),)
+        cursor.execute('SELECT * FROM register WHERE email = % s AND password = % s', (email, password ),)
         account = cursor.fetchone()
         print (account)
         
@@ -89,11 +92,12 @@ def login():
             session['loggedin'] = True
             session['id'] = account[0]
             userid=  account[0]
+            session['email'] = account[1]
             session['username'] = account[1]
-           
+            flash("login successful","success")
             return redirect('/home')
         else:
-            msg = 'Incorrect username / password !'
+            flash("invalid credentials","error")
     return render_template('login.html', msg = msg)
 
 
