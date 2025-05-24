@@ -1,0 +1,318 @@
+/* Limit Page Styles */
+.limit-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.limit-form {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn-save {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.btn-save:hover {
+    background: #3e8e41;
+}
+
+/* Limit Status Styles */
+.limit-status {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 6px;
+}
+
+.limit-status.normal {
+    background: #e8f5e9;
+}
+
+.limit-status.exceeded {
+    background: #ffebee;
+}
+
+.progress-container {
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.5s ease;
+}
+
+.limit-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric {
+    text-align: center;
+}
+
+.metric .label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.metric .value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.alert {
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+.alert-danger {
+    background: #ffcdd2;
+    color: #c62828;
+}
+
+.alert-warning {
+    background: #fff8e1;
+    color: #ff8f00;
+}
+
+.no-limit {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+:root {
+    --primary-color: #4CAF50;
+    --primary-hover: #3e8e41;
+    --danger-color: #f44336;
+    --warning-color: #ff9800;
+    --text-dark: #333;
+    --text-medium: #666;
+    --text-light: #f8f9fa;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  /* Enhanced Limit Container */
+  .limit-container {
+      max-width: 650px;
+      margin: 2.5rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  
+  /* Modern Form Styling */
+  .limit-form {
+      margin-bottom: 2.5rem;
+      padding: 1.75rem;
+      background: #f8f9fa;
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(0,0,0,0.05);
+  }
+  
+  .form-group {
+      margin-bottom: 1.25rem;
+  }
+  
+  .form-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 0.95rem;
+  }
+  
+  .form-group input {
+      width: 100%;
+      padding: 0.85rem;
+      border: 1px solid #ddd;
+      border-radius: calc(var(--border-radius) - 2px);
+      font-size: 1rem;
+      transition: var(--transition);
+  }
+  
+  .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+  }
+  
+  /* Improved Button */
+  .btn-save {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.85rem 1.75rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: var(--transition);
+      width: 100%;
+      display: block;
+      text-align: center;
+  }
+  
+  .btn-save:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  /* Enhanced Progress Bar */
+  .progress-container {
+      height: 24px;
+      background: #e9ecef;
+      border-radius: 12px;
+      margin: 1.75rem 0;
+      overflow: hidden;
+      position: relative;
+  }
+  
+  .progress-bar {
+      height: 100%;
+      background: var(--primary-color);
+      transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: bold;
+  }
+  
+  /* Metrics Cards */
+  .limit-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin: 2rem 0;
+  }
+  
+  .metric {
+      background: white;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+  }
+  
+  .metric .label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-medium);
+      margin-bottom: 0.5rem;
+  }
+  
+  .metric .value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-dark);
+  }
+  
+  /* Status Indicators */
+  .limit-status {
+      margin-top: 2rem;
+      padding: 1.75rem;
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--primary-color);
+  }
+  
+  .limit-status.exceeded {
+      background: #fff5f5;
+      border-left-color: var(--danger-color);
+  }
+  
+  /* Alerts */
+  .alert {
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin: 1.5rem 0 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+  }
+  
+  .alert-danger {
+      background: #fff5f5;
+      color: var(--danger-color);
+      border-left: 4px solid var(--danger-color);
+  }
+  
+  .alert-warning {
+      background: #fffaf0;
+      color: var(--warning-color);
+      border-left: 4px solid var(--warning-color);
+  }
+  
+  /* Empty State */
+  .no-limit {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--text-medium);
+  }
+  
+  .no-limit:before {
+      content: "💸";
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 1rem;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+      .limit-container {
+          margin: 1.5rem;
+          padding: 1.5rem;
+      }
+      
+      .limit-metrics {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+      }
+  }

@@ -2,39 +2,155 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
-
-
+from datetime import datetime
 
 app = Flask(__name__)
-
-
 app.secret_key = 'a'
   
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'plantain2020'
+app.config['MYSQL_PASSWORD'] = '123jklasdf$'
 app.config['MYSQL_DB'] = 'expense_tracker'
 
 mysql = MySQL(app)
 
+# ===== DATABASE MODELS ===== #
+def init_db_tables():
+    """Initialize database tables if they don't exist"""
+    try:
+        cursor = mysql.connection.cursor()
+        
+        # Create limits table if it doesn't exist
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS `limits` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `userid` INT NOT NULL,
+                `limitss` DECIMAL(10,2) NOT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                FOREIGN KEY (`userid`) REFERENCES `register`(`id`) ON DELETE CASCADE,
+                INDEX `userid_idx` (`userid`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        ''')
+        mysql.connection.commit()
+    except Exception as e:
+        print(f"Error initializing database tables: {str(e)}")
+        # If foreign key fails, create without foreign key constraint
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS `limits` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `userid` INT NOT NULL,
+                `limitss` DECIMAL(10,2) NOT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                INDEX `userid_idx` (`userid`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        ''')
+        mysql.connection.commit()
 
-#HOME--PAGE
-@app.route("/home")
+# Initialize tables when app starts
+with app.app_context():
+    try:
+        init_db_tables()
+        print("Database tables initialized successfully")
+    except Exception as e:
+        print(f"Failed to initialize database tables: {str(e)}")
+
+
+# ===== ENHANCEMENTS ===== #
+def get_user_balance(user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT SUM(amount) FROM expenses WHERE userid = %s', (user_id,))
+    total = cursor.fetchone()[0] or 0
+    return total
+
+def get_recent_expenses(user_id, limit=5):
+    cursor = mysql.connection.cursor()
+    cursor.execute('''
+        SELECT expensename, amount, date, category 
+        FROM expenses 
+        WHERE userid = %s 
+        ORDER BY date DESC 
+        LIMIT %s
+    ''', (user_id, limit))
+    return cursor.fetchall()
+
+def get_category_totals(user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('''
+        SELECT category, SUM(amount) 
+        FROM expenses 
+        WHERE userid = %s 
+        GROUP BY category
+    ''', (user_id,))
+    return {category: amount for category, amount in cursor.fetchall()}
+def get_current_limit(user_id):
+    """Get the current active limit for a user"""
+    cursor = mysql.connection.cursor()
+    cursor.execute('''
+        SELECT limitss FROM limits 
+        WHERE userid = %s 
+        ORDER BY created_at DESC LIMIT 1
+    ''', (user_id,))
+    result = cursor.fetchone()
+    return float(result[0]) if result else None
+
+def get_monthly_spending(user_id):
+    """Get total spending for current month"""
+    cursor = mysql.connection.cursor()
+    cursor.execute('''
+        SELECT COALESCE(SUM(amount), 0) 
+        FROM expenses 
+        WHERE userid = %s 
+        AND MONTH(date) = MONTH(CURRENT_DATE())
+        AND YEAR(date) = YEAR(CURRENT_DATE())
+    ''', (user_id,))
+    return float(cursor.fetchone()[0])
+# ===== END ENHANCEMENTS ===== #
+
+@app.route('/')
+def index():
+    if 'loggedin' in session:
+        return redirect('/home')
+    return redirect('/signup')  # Redirect to sign-up page if not logged in
+
+
+# HOME PAGE - ENHANCED
+@app.route('/home')
 def home():
-    return render_template("homepage.html")
-
-@app.route("/")
-def add():
-    return render_template("index.html")
-
-
-
+    if 'loggedin' not in session:
+        return redirect('/signin')
+    
+    user_id = session['id']
+    
+    # Initialize all values to 0 for new users
+    balance = 0
+    recent_expenses = []
+    category_totals = {}
+    
+    # Only query if user might have data
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT COUNT(*) FROM expenses WHERE userid = %s', (user_id,))
+    has_expenses = cursor.fetchone()[0] > 0
+    
+    if has_expenses:
+        balance = get_user_balance(user_id)
+        recent_expenses = get_recent_expenses(user_id)
+        category_totals = get_category_totals(user_id)
+    
+    return render_template("homepage.html",
+                         balance=balance,
+                         recent_expenses=recent_expenses,
+                         category_totals=category_totals,
+                         empty_state=not has_expenses)
 #SIGN--UP--OR--REGISTER
 
 
-@app.route("/signup")
+@app.route('/signup')
 def signup():
-    return render_template("signup.html")
+    if 'loggedin' in session:
+        return redirect('/home')
+    return render_template('signup.html')
 
 
 
@@ -193,216 +309,107 @@ def update(id):
       return redirect("/display")
      
       
-
-            
- 
-         
-    
-            
- #limit
-@app.route("/limit" )
+@app.route("/limit")
 def limit():
-       return redirect('/limitn')
+    if 'loggedin' not in session:
+        return redirect('/signin')
+    
+    debug_info = {}  # For troubleshooting
+    try:
+        user_id = session['id']
+        debug_info['user_id'] = user_id
+        
+        # 1. Get current limit
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT limitss FROM limits WHERE userid = %s ORDER BY id DESC LIMIT 1', (user_id,))
+        limit_data = cursor.fetchone()
+        current_limit = float(limit_data[0]) if limit_data else None
+        debug_info['raw_limit_data'] = limit_data
+        debug_info['current_limit'] = current_limit
+        
+        # 2. Get current month spending
+        cursor.execute('''
+            SELECT COALESCE(SUM(amount), 0) 
+            FROM expenses 
+            WHERE userid = %s 
+            AND MONTH(date) = MONTH(CURRENT_DATE())
+            AND YEAR(date) = YEAR(CURRENT_DATE())
+        ''', (user_id,))
+        spending_data = cursor.fetchone()
+        total_spent = float(spending_data[0]) if spending_data else 0
+        debug_info['spending_data'] = spending_data
+        debug_info['total_spent'] = total_spent
+        
+        # 3. Calculate metrics
+        if current_limit and current_limit > 0:
+            usage_percent = min((total_spent / current_limit) * 100, 100)
+            remaining = max(current_limit - total_spent, 0)
+        else:
+            usage_percent = 0
+            remaining = 0
+        
+        debug_info['final_values'] = {
+            'current_limit': current_limit,
+            'total_spent': total_spent,
+            'usage_percent': usage_percent,
+            'remaining': remaining
+        }
+        
+        print("DEBUG INFO:", debug_info)  # Check Flask console
+        
+        return render_template("limit.html",
+                            current_limit=current_limit,
+                            total_spent=total_spent,
+                            usage_percent=usage_percent,
+                            remaining=remaining,
+                            debug=debug_info)  # Pass debug info to template
+        
+    except Exception as e:
+        print(f"ERROR in /limit: {str(e)}")
+        return render_template("limit.html",
+                            current_limit=None,
+                            total_spent=0,
+                            usage_percent=0,
+                            remaining=0,
+                            error=str(e))
+    
+@app.route("/set_limit", methods=['POST'])
+def set_limit():
+    if 'loggedin' not in session:
+        return redirect('/signin')
+    
+    try:
+        limit_input = request.form.get('limit_amount')
+        print(f"Received limit_amount: {limit_input}")
+        
+        new_limit = float(limit_input)
+        if new_limit <= 0:
+            flash("Limit must be greater than 0", "error")
+            return redirect('/limit')
+        
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "INSERT INTO limits (userid, limitss) VALUES (%s, %s)",
+            (session['id'], new_limit)
+        )
+        mysql.connection.commit()
+        
+        flash("Budget limit set successfully!", "success")
+    except ValueError as ve:
+        print(f"ValueError in set_limit: {str(ve)}")
+        flash("Please enter a valid number", "error")
+    except Exception as e:
+        print(f"Unexpected error in set_limit: {str(e)}")
+        flash("Error setting budget limit", "error")
+    
+    return redirect('/limit')
 
-@app.route("/limitnum" , methods = ['POST' ])
-def limitnum():
-     if request.method == "POST":
-         number= request.form['number']
-         cursor = mysql.connection.cursor()
-         cursor.execute('INSERT INTO limits VALUES (NULL, % s, % s) ',(session['id'], number))
-         mysql.connection.commit()
-         return redirect('/limitn')
-     
-         
-@app.route("/limitn") 
-def limitn():
+
+# Update the test_set_limit route as well
+@app.route('/test_set_limit')
+def test_set_limit():
     cursor = mysql.connection.cursor()
-    cursor.execute('SELECT limitss FROM `limits` ORDER BY `limits`.`id` DESC LIMIT 1')
-    x= cursor.fetchone()
-    s = x[0]
-    
-    
-    return render_template("limit.html" , y= s)
-
-#REPORT
-
-@app.route("/today")
-def today():
-      cursor = mysql.connection.cursor()
-      cursor.execute('SELECT TIME(date)   , amount FROM expenses  WHERE userid = %s AND DATE(date) = DATE(NOW()) ',(str(session['id'])))
-      texpense = cursor.fetchall()
-      print(texpense)
-      
-      cursor = mysql.connection.cursor()
-      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND DATE(date) = DATE(NOW()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
-      expense = cursor.fetchall()
-  
-      total=0
-      t_food=0
-      t_entertainment=0
-      t_business=0
-      t_rent=0
-      t_EMI=0
-      t_other=0
- 
-     
-      for x in expense:
-          total += x[4]
-          if x[6] == "food":
-              t_food += x[4]
-            
-          elif x[6] == "entertainment":
-              t_entertainment  += x[4]
-        
-          elif x[6] == "business":
-              t_business  += x[4]
-          elif x[6] == "rent":
-              t_rent  += x[4]
-           
-          elif x[6] == "EMI":
-              t_EMI  += x[4]
-         
-          elif x[6] == "other":
-              t_other  += x[4]
-            
-      print(total)
-        
-      print(t_food)
-      print(t_entertainment)
-      print(t_business)
-      print(t_rent)
-      print(t_EMI)
-      print(t_other)
-
-
-     
-      return render_template("today.html", texpense = texpense, expense = expense,  total = total ,
-                           t_food = t_food,t_entertainment =  t_entertainment,
-                           t_business = t_business,  t_rent =  t_rent, 
-                           t_EMI =  t_EMI,  t_other =  t_other )
-     
-
-@app.route("/month")
-def month():
-      cursor = mysql.connection.cursor()
-      cursor.execute('SELECT DATE(date), SUM(amount) FROM expenses WHERE userid= %s AND MONTH(DATE(date))= MONTH(now()) GROUP BY DATE(date) ORDER BY DATE(date) ',(str(session['id'])))
-      texpense = cursor.fetchall()
-      print(texpense)
-      
-      cursor = mysql.connection.cursor()
-      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND MONTH(DATE(date))= MONTH(now()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
-      expense = cursor.fetchall()
-  
-      total=0
-      t_food=0
-      t_entertainment=0
-      t_business=0
-      t_rent=0
-      t_EMI=0
-      t_other=0
- 
-     
-      for x in expense:
-          total += x[4]
-          if x[6] == "food":
-              t_food += x[4]
-            
-          elif x[6] == "entertainment":
-              t_entertainment  += x[4]
-        
-          elif x[6] == "business":
-              t_business  += x[4]
-          elif x[6] == "rent":
-              t_rent  += x[4]
-           
-          elif x[6] == "EMI":
-              t_EMI  += x[4]
-         
-          elif x[6] == "other":
-              t_other  += x[4]
-            
-      print(total)
-        
-      print(t_food)
-      print(t_entertainment)
-      print(t_business)
-      print(t_rent)
-      print(t_EMI)
-      print(t_other)
-
-
-     
-      return render_template("today.html", texpense = texpense, expense = expense,  total = total ,
-                           t_food = t_food,t_entertainment =  t_entertainment,
-                           t_business = t_business,  t_rent =  t_rent, 
-                           t_EMI =  t_EMI,  t_other =  t_other )
-         
-@app.route("/year")
-def year():
-      cursor = mysql.connection.cursor()
-      cursor.execute('SELECT MONTH(date), SUM(amount) FROM expenses WHERE userid= %s AND YEAR(DATE(date))= YEAR(now()) GROUP BY MONTH(date) ORDER BY MONTH(date) ',(str(session['id'])))
-      texpense = cursor.fetchall()
-      print(texpense)
-      
-      cursor = mysql.connection.cursor()
-      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND YEAR(DATE(date))= YEAR(now()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
-      expense = cursor.fetchall()
-  
-      total=0
-      t_food=0
-      t_entertainment=0
-      t_business=0
-      t_rent=0
-      t_EMI=0
-      t_other=0
- 
-     
-      for x in expense:
-          total += x[4]
-          if x[6] == "food":
-              t_food += x[4]
-            
-          elif x[6] == "entertainment":
-              t_entertainment  += x[4]
-        
-          elif x[6] == "business":
-              t_business  += x[4]
-          elif x[6] == "rent":
-              t_rent  += x[4]
-           
-          elif x[6] == "EMI":
-              t_EMI  += x[4]
-         
-          elif x[6] == "other":
-              t_other  += x[4]
-            
-      print(total)
-        
-      print(t_food)
-      print(t_entertainment)
-      print(t_business)
-      print(t_rent)
-      print(t_EMI)
-      print(t_other)
-
-
-     
-      return render_template("today.html", texpense = texpense, expense = expense,  total = total ,
-                           t_food = t_food,t_entertainment =  t_entertainment,
-                           t_business = t_business,  t_rent =  t_rent, 
-                           t_EMI =  t_EMI,  t_other =  t_other )
-
-#log-out
-
-@app.route('/logout')
-
-def logout():
-   session.pop('loggedin', None)
-   session.pop('id', None)
-   session.pop('username', None)
-   return render_template('home.html')
-
-             
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    cursor.execute('INSERT INTO limits (userid, limitss) VALUES (%s, %s)', 
+                  (session['id'], 1000.00))
+    mysql.connection.commit()
+    return "Test limit set to 1000.00"

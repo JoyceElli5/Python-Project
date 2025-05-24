@@ -2,42 +2,42 @@
 
 {% block title %}Expenses | MyBudget{% endblock %}
 
-{% block body %}
+{% block content %}
 <h2 class="page-title"><i class="fas fa-history"></i> EXPENSES</h2>
 
 <div class="expense-list">
     {% if expense %}
     {% for row in expense %}
-    <div class="expense-card">
+    <div class="card mb-3 expense-card shadow-sm">
         <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-2">
-                    <span class="date-badge">{{row[2]}}</span>
+                    <span class="date-badge">{{ row.date }}</span>
                 </div>
                 <div class="col-md-2">
-                    <h6 class="mb-0">{{row[3]}}</h6>
+                    <h6 class="mb-0">{{ row.name }}</h6>
                 </div>
                 <div class="col-md-2">
-                    <span class="text-danger font-weight-bold">GH${{row[4]}}</span>
+                    <span class="text-danger font-weight-bold">GH₵{{ "%.2f"|format(row.amount) }}</span>
                 </div>
                 <div class="col-md-2">
-                    <span class="payment-badge">{{row[5]}}</span>
+                    <span class="badge bg-primary payment-badge">{{ row.method|capitalize }}</span>
                 </div>
                 <div class="col-md-2">
-                    <span class="category-badge">{{row[6]}}</span>
+                    <span class="badge bg-secondary category-badge">{{ row.category|capitalize }}</span>
                 </div>
                 <div class="col-md-2 d-flex">
-                    <a href="/edit/{{row[0]}}" class="btn-action btn-edit mr-2">Edit</a>
-                    <a href="/delete/{{row[0]}}" class="btn-action btn-delete btnDelete">Delete</a>
+                    <a href="{{ url_for('edit', id=row.id) }}" class="btn-action btn-edit mr-2" aria-label="Edit Expense">Edit</a>
+                    <a href="{{ url_for('delete', id=row.id) }}" class="btn-action btn-delete btnDelete" aria-label="Delete Expense">Delete</a>
                 </div>
             </div>
         </div>
     </div>
     {% endfor %}
     {% else %}
-    <div class="empty-state">
-        <h5><a href="/add">ADD-DATA</a> to Display</h5>
-        <img src="../static/images/not-found.png" alt="No data found" class="img-fluid">
+    <div class="empty-state text-center">
+        <h5><a href="{{ url_for('add') }}">ADD DATA</a> to Display</h5>
+        <img src="{{ url_for('static', filename='images/not-found.png') }}" alt="No data found" class="img-fluid" style="max-height: 200px;">
     </div>
     {% endif %}
 </div>
@@ -50,55 +50,55 @@
         <div class="breakdown-card">
             <div class="breakdown-card-body">
                 <div class="category-name">Food</div>
-                <div id="tfood" class="category-amount">GHc{{ t_food }}</div>
+                <div id="tfood" class="category-amount">GH₵ {{ "%.2f"|format(t_food) }}</div>
             </div>
         </div>
 
         <div class="breakdown-card">
             <div class="breakdown-card-body">
                 <div class="category-name">Entertainment</div>
-                <div id="tentertainment" class="category-amount">GHc {{ t_entertainment }}</div>
+                <div id="tentertainment" class="category-amount">GH₵ {{ "%.2f"|format(t_entertainment) }}</div>
             </div>
         </div>
 
         <div class="breakdown-card">
             <div class="breakdown-card-body">
                 <div class="category-name">Business</div>
-                <div id="tbusiness" class="category-amount">GHc{{ t_business }}</div>
+                <div id="tbusiness" class="category-amount">GH₵ {{ "%.2f"|format(t_business) }}</div>
             </div>
         </div>
 
         <div class="breakdown-card">
             <div class="breakdown-card-body">
                 <div class="category-name">Rent</div>
-                <div id="trent" class="category-amount">GHc{{ t_rent }}</div>
+                <div id="trent" class="category-amount">GH₵ {{ "%.2f"|format(t_rent) }}</div>
             </div>
         </div>
 
         <div class="breakdown-card">
             <div class="breakdown-card-body">
                 <div class="category-name">EMI</div>
-                <div id="temi" class="category-amount">GHc{{ t_EMI }}</div>
+                <div id="temi" class="category-amount">GH₵ {{ "%.2f"|format(t_EMI) }}</div>
             </div>
         </div>
 
         <div class="breakdown-card">
             <div class="breakdown-card-body">
                 <div class="category-name">Other</div>
-                <div id="tother" class="category-amount">GHc{{ t_other }}</div>
+                <div id="tother" class="category-amount">GH₵ {{ "%.2f"|format(t_other) }}</div>
             </div>
         </div>
 
         <div class="breakdown-card total-card">
             <div class="breakdown-card-body">
                 <div class="category-name">Total</div>
-                <div class="category-amount">GHc {{ total }}</div>
+                <div class="category-amount">GH₵ {{ "%.2f"|format(total) }}</div>
             </div>
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="chart-container">
+        <div class="chart-container" style="position: relative; height: 400px;">
             <canvas id="myChart"></canvas>
         </div>
     </div>
@@ -108,13 +108,17 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         {% if expense %}
-        // Get values from the HTML elements
-        let food = document.getElementById('tfood').innerHTML.replace('₹ ', '').trim();
-        let entertainment = document.getElementById('tentertainment').innerHTML.replace('₹ ', '').trim();
-        let business = document.getElementById('tbusiness').innerHTML.replace('₹ ', '').trim();
-        let rent = document.getElementById('trent').innerHTML.replace('₹ ', '').trim();
-        let emi = document.getElementById('temi').innerHTML.replace('₹ ', '').trim();
-        let other = document.getElementById('tother').innerHTML.replace('₹ ', '').trim();
+        // Helper function to parse currency strings to float
+        function cleanCurrency(value) {
+            return parseFloat(value.replace(/[^\d.]/g, '')) || 0;
+        }
+
+        let food = cleanCurrency(document.getElementById('tfood').innerText);
+        let entertainment = cleanCurrency(document.getElementById('tentertainment').innerText);
+        let business = cleanCurrency(document.getElementById('tbusiness').innerText);
+        let rent = cleanCurrency(document.getElementById('trent').innerText);
+        let emi = cleanCurrency(document.getElementById('temi').innerText);
+        let other = cleanCurrency(document.getElementById('tother').innerText);
 
         // Create the chart
         var ctx = document.getElementById('myChart').getContext('2d');
@@ -182,4 +186,66 @@
         });
     });
 </script>
+
+<style>
+    .expense-card {
+        border-radius: 0.5rem;
+    }
+
+    .date-badge {
+        font-weight: 600;
+        color: #4e73df;
+    }
+
+    .payment-badge {
+        font-size: 0.85rem;
+        padding: 0.25em 0.5em;
+        border-radius: 0.25rem;
+        text-transform: capitalize;
+    }
+
+    .category-badge {
+        font-size: 0.85rem;
+        padding: 0.25em 0.5em;
+        border-radius: 0.25rem;
+        text-transform: capitalize;
+    }
+
+    .breakdown-card {
+        background: #f8f9fc;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .breakdown-card.total-card {
+        background: #4e73df;
+        color: white;
+        font-weight: 700;
+    }
+
+    .breakdown-card-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .category-name {
+        font-weight: 600;
+    }
+
+    .category-amount {
+        font-weight: 700;
+    }
+
+    .empty-state a {
+        text-decoration: none;
+        color: #4e73df;
+        font-weight: 600;
+    }
+
+    .empty-state a:hover {
+        text-decoration: underline;
+    }
+</style>
 {% endblock %}
