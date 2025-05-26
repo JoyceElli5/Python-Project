@@ -1,19 +1,21 @@
 {% extends 'base.html' %}
 
-{% block body %} 
+{% block body %}
 
-<p> Currently your MONTHLY limit is GH$ {{y}} </p>
-
+<p> Currently your {{ limit_type|upper }} limit is GH₵ {{ limit_value }} </p>
 
 <form action="/limitnum" method="POST">
-
-    <p> ENTER the MONTHLY LIMIT to avoid over EXPENSES</p> <br/>
-    <input type="number" name="number" required/> <span> 
+    <p>Enter your expense limit and select the time frame:</p><br/>
+    <input type="number" name="number" required />
+    <select name="limit_type" required>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly" selected>Monthly</option>
+        <option value="yearly">Yearly</option>
+    </select>
+    <span>
         <button class="btn btn-warning" type="submit">ENTER</button>
     </span>
-    
-
-
-
 </form>
+
 {% endblock %}

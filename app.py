@@ -102,12 +102,6 @@ def login():
 
 
 
-       
-
-
-
-
-
 #ADDING----DATA
 
 
@@ -194,35 +188,45 @@ def update(id):
      
       
 
-            
- 
-         
-    
-            
+                        
  #limit
 @app.route("/limit" )
 def limit():
        return redirect('/limitn')
 
-@app.route("/limitnum" , methods = ['POST' ])
+@app.route("/limitnum", methods=["POST"])
 def limitnum():
-     if request.method == "POST":
-         number= request.form['number']
-         cursor = mysql.connection.cursor()
-         cursor.execute('INSERT INTO limits VALUES (NULL, % s, % s) ',(session['id'], number))
-         mysql.connection.commit()
-         return redirect('/limitn')
-     
+    if request.method == "POST":
+        number = request.form["number"]
+        duration = request.form["limit_type"]  # the select field is still called limit_type in HTML
+
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            'INSERT INTO limits (userid, limitss, duration) VALUES (%s, %s, %s)',
+            (session["id"], number, duration)
+        )
+        mysql.connection.commit()
+        return redirect('/limitn')
+
          
-@app.route("/limitn") 
+@app.route("/limitn")
 def limitn():
     cursor = mysql.connection.cursor()
-    cursor.execute('SELECT limitss FROM `limits` ORDER BY `limits`.`id` DESC LIMIT 1')
-    x= cursor.fetchone()
-    s = x[0]
+    cursor.execute(
+        'SELECT limitss, duration FROM limits WHERE userid = %s ORDER BY id DESC LIMIT 1',
+        (session['id'],)
+    )
+    x = cursor.fetchone()
     
-    
-    return render_template("limit.html" , y= s)
+    if x:
+        limit_value = x[0]
+        duration = x[1]
+    else:
+        limit_value = 0
+        duration = "Not Set"
+
+    return render_template("limit.html", limit_value=limit_value, limit_type=duration)
+
 
 #REPORT
 
