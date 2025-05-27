@@ -770,10 +770,33 @@
                 width: 100%;
             }
         }
+
+        .form-check {
+        margin-bottom: 10px;
+        }
+
+        .form-check-input {
+         margin-right: 8px;
+         }
+
+        .form-check-label {
+        font-size: 14px;
+       color: #333;
+        cursor: pointer;
+        }
+
+    #new-limit-fields {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+     }
     </style>
 </head>
 
-<body>
+<body data-has-limit="{{ has_limit | lower }}">
+
     <div class="dashboard-container">
         <header>
             <nav>
@@ -826,68 +849,92 @@
                         </div>
                     </div>
                     <form action="/addexpense" method="POST" class="expense-form">
-                        <div class="form-group">
-                            <label for="date">Date</label>
-                            <input class="form-control" type="datetime-local" name="date" id="date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="expensename">Expense Name</label>
-                            <input class="form-control" type="text" name="expensename" id="expensename"
-                                placeholder="What did you spend on?" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="amount">Amount</label>
-                            <div class="amount-input">
-                                <span class="currency-symbol">GH$</span>
-                                <input class="form-control" type="number" min="0" step="0.01" name="amount" id="amount"
-                                    placeholder="0.00" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label for="paymode">Payment Method</label>
-                                <select class="form-control" name="paymode" id="paymode" required>
-                                    <option value="" selected disabled hidden>Select payment method</option>
-                                    <option value="cash">Cash</option>
-                                    <option value="debitcard">Debit Card</option>
-                                    <option value="creditcard">Credit Card</option>
-                                    <option value="epayment">E-Payment</option>
-                                    <option value="onlinebanking">Online Banking</option>
-                                </select>
-                            </div>
-                            <div class="form-group half">
-                                <label for="category">Category</label>
-                                <select class="form-control" name="category" id="category" required>
-                                    <option value="" selected disabled hidden>Select category</option>
-                                    <option value="food">Food</option>
-                                    <option value="entertainment">Entertainment</option>
-                                    <option value="business">Business</option>
-                                    <option value="rent">Rent</option>
-                                    <option value="EMI">EMI</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                           <div class="form-group half">
-                              <label for="set_limit">Set Limit (optional)</label>
-                              <input class="form-control" type="number" min="0" step="0.01" name="set_limit" id="set_limit"
-                                    placeholder="Enter new limit (GH$)">
-                            </div>
-                            <div class="form-group half">
-                                    <label for="limit_type">Limit Type</label>
-                                <select class="form-control" name="limit_type" id="limit_type">
-                                    <option value="" selected disabled hidden>Select duration</option>
-                                    <option value="daily">Daily</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="yearly">Yearly</option>
-                                </select>
-                            </div>
-                        </div>
+    <div class="form-group">
+        <label for="date">Date</label>
+        <input class="form-control" type="datetime-local" name="date" id="date" required>
+    </div>
+    <div class="form-group">
+        <label for="expensename">Expense Name</label>
+        <input class="form-control" type="text" name="expensename" id="expensename"
+            placeholder="What did you spend on?" required>
+    </div>
+    <div class="form-group">
+        <label for="amount">Amount</label>
+        <div class="amount-input">
+            <span class="currency-symbol">GH$</span>
+            <input class="form-control" type="number" min="0" step="0.01" name="amount" id="amount"
+                placeholder="0.00" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group half">
+            <label for="paymode">Payment Method</label>
+            <select class="form-control" name="paymode" id="paymode" required>
+                <option value="" selected disabled hidden>Select payment method</option>
+                <option value="cash">Cash</option>
+                <option value="debitcard">Debit Card</option>
+                <option value="creditcard">Credit Card</option>
+                <option value="epayment">E-Payment</option>
+                <option value="onlinebanking">Online Banking</option>
+            </select>
+        </div>
+        <div class="form-group half">
+            <label for="category">Category</label>
+            <select class="form-control" name="category" id="category" required>
+                <option value="" selected disabled hidden>Select category</option>
+                <option value="food">Food</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="business">Business</option>
+                <option value="rent">Rent</option>
+                <option value="EMI">EMI</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Add this hidden field to track if user has seen the limit prompt -->
+    <input type="hidden" name="has_seen_limit_prompt" id="has_seen_limit_prompt" value="false">
+    
+    <!-- Add this conditional section for limit fields -->
+    <div id="limit-fields-section" style="display: none;">
+        <div class="form-group">
+            <div class="form-check" style="margin-bottom: 15px;">
+                <input class="form-check-input" type="radio" name="use_previous_limit" id="use-limit-yes" value="yes" checked>
+                <label class="form-check-label" for="use-limit-yes">
+                    Use my previous spending limit
+                </label>
+            </div>
+            <div class="form-check" style="margin-bottom: 15px;">
+                <input class="form-check-input" type="radio" name="use_previous_limit" id="use-limit-no" value="no">
+                <label class="form-check-label" for="use-limit-no">
+                    Set a new spending limit
+                </label>
+            </div>
+        </div>
+        
+        <div id="new-limit-fields" style="display: none;">
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="set_limit">Set Limit</label>
+                    <input class="form-control" type="number" min="0" step="0.01" name="set_limit" id="set_limit"
+                        placeholder="Enter new limit (GH$)">
+                </div>
+                <div class="form-group half">
+                    <label for="limit_type">Limit Type</label>
+                    <select class="form-control" name="limit_type" id="limit_type">
+                        <option value="" selected disabled hidden>Select duration</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        <button type="submit" class="btn-submit">Add Expense</button>
-                    </form>
+    <button type="submit" class="btn-submit">Add Expense</button>
+</form>
                 </div>
             </div>
             <div class="content-right">
@@ -907,5 +954,33 @@
         </main>
     </div>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const limitFieldsSection = document.getElementById('limit-fields-section');
+        const newLimitFields = document.getElementById('new-limit-fields');
+        const useLimitYes = document.getElementById('use-limit-yes');
+        const useLimitNo = document.getElementById('use-limit-no');
+        const hasSeenPrompt = document.getElementById('has_seen_limit_prompt');
+
+        const hasExistingLimit = document.body.getAttribute('data-has-limit') === 'true';
+
+        if (hasExistingLimit) {
+            limitFieldsSection.style.display = 'block';
+            hasSeenPrompt.value = 'true';
+
+            useLimitYes.addEventListener('change', function () {
+                if (this.checked) {
+                    newLimitFields.style.display = 'none';
+                }
+            });
+
+            useLimitNo.addEventListener('change', function () {
+                if (this.checked) {
+                    newLimitFields.style.display = 'block';
+                }
+            });
+        }
+    });
+</script>
 
 </html>

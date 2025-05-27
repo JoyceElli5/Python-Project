@@ -131,81 +131,114 @@ def login():
 
 @app.route("/add")
 def adding():
-    return render_template('add.html')
+    user_id = session.get('id')
+    has_limit = False
 
+    if user_id:
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT COUNT(*) FROM limits WHERE userid = %s', (user_id,))
+        has_limit = cursor.fetchone()[0] > 0
+
+    return render_template("add.html", has_limit=has_limit)
 
 @app.route('/addexpense', methods=['GET', 'POST'])
 def addexpense():
-    date = request.form['date']
-    expensename = request.form['expensename']
-    amount = float(request.form['amount'])
-    paymode = request.form['paymode']
-    category = request.form['category']
-    user_id = session['id']
+    if request.method == 'POST':
+        date = request.form['date']
+        expensename = request.form['expensename']
+        amount = float(request.form['amount'])
+        paymode = request.form['paymode']
+        category = request.form['category']
+        user_id = session['id']
 
-    set_limit = request.form.get('set_limit')
-    limit_type = request.form.get('limit_type')
+        # Check if user wants to use previous limit
+        use_previous_limit = request.form.get('use_previous_limit') == 'yes'
 
-    cursor = mysql.connection.cursor()
+        # Handle limit setting
+        if not use_previous_limit:
+            set_limit = request.form.get('set_limit')
+            limit_type = request.form.get('limit_type')
 
-    cursor.execute('INSERT INTO expenses VALUES (NULL, %s, %s, %s, %s, %s, %s)', 
-                   (user_id, date, expensename, amount, paymode, category))
-    mysql.connection.commit()
+            if set_limit and limit_type:
+                cursor = mysql.connection.cursor()
+                cursor.execute(
+                    'INSERT INTO limits (userid, limitss, duration) VALUES (%s, %s, %s)',
+                    (user_id, set_limit, limit_type)
+                )
+                mysql.connection.commit()
+                session['has_limit'] = True  # Mark that the user now has a limit
+        elif use_previous_limit:
+            cursor = mysql.connection.cursor()
+            cursor.execute('SELECT limitss, duration FROM limits WHERE userid = %s ORDER BY id DESC LIMIT 1', (user_id,))
+            limit_data = cursor.fetchone()
+            if not limit_data:
+                flash("No previous limit found. Please set a new limit.", "error")
+                return redirect("/add")
+            set_limit = limit_data[0]
+            limit_type = limit_data[1]
+            session['has_limit'] = True
 
-    if set_limit and limit_type:
-        cursor.execute(
-            'INSERT INTO limits (userid, limitss, duration) VALUES (%s, %s, %s)',
-            (user_id, set_limit, limit_type)
-        )
+        # Insert the expense
+        cursor = mysql.connection.cursor()
+        cursor.execute('INSERT INTO expenses VALUES (NULL, %s, %s, %s, %s, %s, %s)',
+                       (user_id, date, expensename, amount, paymode, category))
         mysql.connection.commit()
-        limit_value = float(set_limit)
-        duration = limit_type.lower()
-    else:
-        cursor.execute('SELECT limitss, duration FROM limits WHERE userid = %s ORDER BY id DESC LIMIT 1', (user_id,))
-        limit_data = cursor.fetchone()
-        if not limit_data:
-            flash("Expense added successfully (no limit set).", "success")
-            return redirect("/display")
-        limit_value = float(limit_data[0])
-        duration = limit_data[1].lower()
 
-    today = datetime.strptime(date, '%Y-%m-%dT%H:%M')
-    if duration == 'daily':
-        start_date = today.date()
-        end_date = today.date()
-    elif duration == 'weekly':
-        start_date = (today - timedelta(days=today.weekday())).date()
-        end_date = today.date()
-    elif duration == 'monthly':
-        start_date = today.replace(day=1).date()
-        end_date = today.date()
-    elif duration == 'yearly':
-        start_date = today.replace(month=1, day=1).date()
-        end_date = today.date()
-    else:
-        start_date = today.date()
-        end_date = today.date()
+        # Only check limits if one was set
+        if session.get('has_limit') and set_limit and limit_type:
+            limit_value = float(set_limit)
+            duration = limit_type.lower()
 
-    cursor.execute("""
-        SELECT SUM(amount) FROM expenses 
-        WHERE userid = %s AND DATE(date) BETWEEN %s AND %s
-    """, (user_id, start_date, end_date))
-    total_spent = cursor.fetchone()[0] or 0
+            today = datetime.strptime(date, '%Y-%m-%dT%H:%M')
+            if duration == 'daily':
+                start_date = today.date()
+                end_date = today.date()
+            elif duration == 'weekly':
+                start_date = (today - timedelta(days=today.weekday())).date()
+                end_date = today.date()
+            elif duration == 'monthly':
+                start_date = today.replace(day=1).date()
+                end_date = today.date()
+            elif duration == 'yearly':
+                start_date = today.replace(month=1, day=1).date()
+                end_date = today.date()
+            else:
+                start_date = today.date()
+                end_date = today.date()
 
-    try:
-        if total_spent > limit_value:
-            flash(f"🚨 Limit exceeded! You've spent GH₵{total_spent:.2f} which is over your {duration} limit of GH₵{limit_value:.2f}.", "error")
-            send_email(session['email'], f"🚨 Limit Exceeded: You've spent GH₵{total_spent:.2f} which is over your {duration} limit of GH₵{limit_value:.2f}.")
-        elif total_spent >= 0.9 * limit_value:
-            flash(f"⚠️ Warning: You've spent GH₵{total_spent:.2f}, which is 90% of your {duration} limit of GH₵{limit_value:.2f}.", "warning")
-            send_email(session['email'], f"⚠️ Warning: You've spent GH₵{total_spent:.2f}, which is 90% of your {duration} limit of GH₵{limit_value:.2f}.")
+            cursor.execute("""
+                SELECT SUM(amount) FROM expenses 
+                WHERE userid = %s AND DATE(date) BETWEEN %s AND %s
+            """, (user_id, start_date, end_date))
+            total_spent = cursor.fetchone()[0] or 0
+
+            try:
+                if total_spent > limit_value:
+                    flash(f"🚨 Limit exceeded! You've spent GH₵{total_spent:.2f} which is over your {duration} limit of GH₵{limit_value:.2f}.", "error")
+                    send_email(session['email'], f"🚨 Limit Exceeded: You've spent GH₵{total_spent:.2f} which is over your {duration} limit of GH₵{limit_value:.2f}.")
+                elif total_spent >= 0.9 * limit_value:
+                    flash(f"⚠️ Warning: You've spent GH₵{total_spent:.2f}, which is 90% of your {duration} limit of GH₵{limit_value:.2f}.", "warning")
+                    send_email(session['email'], f"⚠️ Warning: You've spent GH₵{total_spent:.2f}, which is 90% of your {duration} limit of GH₵{limit_value:.2f}.")
+                else:
+                    flash("Expense added successfully.", "success")
+            except Exception as e:
+                print(f"Email sending error: {e}")
+                flash("Expense added but failed to send email notification.", "warning")
         else:
-            flash("Expense added successfully.", "success")
-    except Exception as e:
-        print(f"Email sending error: {e}")
-        flash("Expense added but failed to send email notification.", "warning")
+            flash("Expense added successfully (no limit set).", "success")
 
-    return redirect("/display")
+        return redirect("/display")
+
+    
+@app.route("/check_limit")
+def check_limit():
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT COUNT(*) FROM limits WHERE userid = %s', (session['id'],))
+    has_limit = cursor.fetchone()[0] > 0
+    
+    if has_limit:
+        return render_template("add.html", has_existing_limit=True)  # Pass a flag to the template
+    return render_template("add.html", has_existing_limit=False)
 
 @app.route("/history")
 def history():

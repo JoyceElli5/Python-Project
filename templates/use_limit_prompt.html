@@ -1,0 +1,26 @@
+<!-- templates/use_limit_prompt.html -->
+{% extends "base.html" %}  <!-- or whatever your base template is -->
+
+{% block content %}
+<div class="container">
+    <h2>Add New Expense</h2>
+    <form action="/addexpense" method="POST">
+        <div class="form-group">
+            <p>Would you like to use your previously set limit for this expense?</p>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="use_previous_limit" id="use-limit-yes" value="yes" checked>
+                <label class="form-check-label" for="use-limit-yes">
+                    Yes, use my previous limit
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="use_previous_limit" id="use-limit-no" value="no">
+                <label class="form-check-label" for="use-limit-no">
+                    No, set a new limit
+                </label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Continue</button>
+    </form>
+</div>
+{% endblock %}
