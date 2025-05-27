@@ -868,6 +868,24 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="form-row">
+                           <div class="form-group half">
+                              <label for="set_limit">Set Limit (optional)</label>
+                              <input class="form-control" type="number" min="0" step="0.01" name="set_limit" id="set_limit"
+                                    placeholder="Enter new limit (GH$)">
+                            </div>
+                            <div class="form-group half">
+                                    <label for="limit_type">Limit Type</label>
+                                <select class="form-control" name="limit_type" id="limit_type">
+                                    <option value="" selected disabled hidden>Select duration</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn-submit">Add Expense</button>
                     </form>
                 </div>

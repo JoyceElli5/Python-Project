@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container mt-4">
+    <h3 class="text-primary mb-3">📜 Expense History</h3>
+
+    {% if expense %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Expense Name</th>
+                        <th>Amount (GH₵)</th>
+                        <th>Payment Mode</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in expense %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ row[2]|datetimeformat }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>GH₵{{ "%.2f"|format(row[4]) }}</td>
+                        <td>{{ row[5] }}</td>
+                        <td>{{ row[6] }}</td>
+                        <td>
+                            <a href="/edit/{{ row[0] }}" class="btn btn-sm btn-outline-primary" aria-label="Edit expense">Edit</a>
+                            <a href="/delete/{{ row[0] }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this expense?')" aria-label="Delete expense">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted">No expenses recorded yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

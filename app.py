@@ -2,10 +2,24 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+from datetime import datetime, timedelta
+import smtplib
+from email.mime.text import MIMEText
+
 
 
 
 app = Flask(__name__)
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format='%Y-%m-%d %H:%M'):
+    if isinstance(value, str):
+        try:
+            value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            return value
+    return value.strftime(format)
+
 
 
 app.secret_key = 'a'
@@ -16,6 +30,24 @@ app.config['MYSQL_PASSWORD'] = '123jklasdf$'
 app.config['MYSQL_DB'] = 'expense_tracker'
 
 mysql = MySQL(app)
+
+def send_email(to_email, content):
+    from_email = "youremail@gmail.com"
+    from_password = "your-email-password"  # Use app password if 2FA is on
+
+    msg = MIMEText(content)
+    msg['Subject'] = "Expense Tracker Alert"
+    msg['From'] = from_email
+    msg['To'] = to_email
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(from_email, from_password)
+        server.sendmail(from_email, to_email, msg.as_string())
+        server.quit()
+        print("Email sent.")
+    except Exception as e:
+        print(f"Email failed: {e}")
 
 
 #HOME--PAGE
@@ -76,31 +108,23 @@ def signin():
         
 @app.route('/login',methods =['GET', 'POST'])
 def login():
-    global userid
-    msg = ''
-   
-  
     if request.method == 'POST' :
         email = request.form['email']
         password = request.form['password']
         cursor = mysql.connection.cursor()
         cursor.execute('SELECT * FROM register WHERE email = % s AND password = % s', (email, password ),)
         account = cursor.fetchone()
-        print (account)
         
         if account:
             session['loggedin'] = True
             session['id'] = account[0]
-            userid=  account[0]
-            session['email'] = account[1]
-            session['username'] = account[1]
-            flash("login successful","success")
+            session['email'] = account[2]    # assuming email is in column index 2
+            session['username'] = account[1] # username in column index 1
+            flash("Login successful","success")
             return redirect('/home')
         else:
-            flash("invalid credentials","error")
-    return render_template('login.html', msg = msg)
-
-
+            flash("Invalid credentials","error")
+    return render_template('login.html')
 
 #ADDING----DATA
 
@@ -110,38 +134,85 @@ def adding():
     return render_template('add.html')
 
 
-@app.route('/addexpense',methods=['GET', 'POST'])
+@app.route('/addexpense', methods=['GET', 'POST'])
 def addexpense():
-    
     date = request.form['date']
     expensename = request.form['expensename']
-    amount = request.form['amount']
+    amount = float(request.form['amount'])
     paymode = request.form['paymode']
     category = request.form['category']
-    
+    user_id = session['id']
+
+    set_limit = request.form.get('set_limit')
+    limit_type = request.form.get('limit_type')
+
     cursor = mysql.connection.cursor()
-    cursor.execute('INSERT INTO expenses VALUES (NULL,  % s, % s, % s, % s, % s, % s)', (session['id'] ,date, expensename, amount, paymode, category))
+
+    cursor.execute('INSERT INTO expenses VALUES (NULL, %s, %s, %s, %s, %s, %s)', 
+                   (user_id, date, expensename, amount, paymode, category))
     mysql.connection.commit()
-    print(date + " " + expensename + " " + amount + " " + paymode + " " + category)
-    
+
+    if set_limit and limit_type:
+        cursor.execute(
+            'INSERT INTO limits (userid, limitss, duration) VALUES (%s, %s, %s)',
+            (user_id, set_limit, limit_type)
+        )
+        mysql.connection.commit()
+        limit_value = float(set_limit)
+        duration = limit_type.lower()
+    else:
+        cursor.execute('SELECT limitss, duration FROM limits WHERE userid = %s ORDER BY id DESC LIMIT 1', (user_id,))
+        limit_data = cursor.fetchone()
+        if not limit_data:
+            flash("Expense added successfully (no limit set).", "success")
+            return redirect("/display")
+        limit_value = float(limit_data[0])
+        duration = limit_data[1].lower()
+
+    today = datetime.strptime(date, '%Y-%m-%dT%H:%M')
+    if duration == 'daily':
+        start_date = today.date()
+        end_date = today.date()
+    elif duration == 'weekly':
+        start_date = (today - timedelta(days=today.weekday())).date()
+        end_date = today.date()
+    elif duration == 'monthly':
+        start_date = today.replace(day=1).date()
+        end_date = today.date()
+    elif duration == 'yearly':
+        start_date = today.replace(month=1, day=1).date()
+        end_date = today.date()
+    else:
+        start_date = today.date()
+        end_date = today.date()
+
+    cursor.execute("""
+        SELECT SUM(amount) FROM expenses 
+        WHERE userid = %s AND DATE(date) BETWEEN %s AND %s
+    """, (user_id, start_date, end_date))
+    total_spent = cursor.fetchone()[0] or 0
+
+    try:
+        if total_spent > limit_value:
+            flash(f"🚨 Limit exceeded! You've spent GH₵{total_spent:.2f} which is over your {duration} limit of GH₵{limit_value:.2f}.", "error")
+            send_email(session['email'], f"🚨 Limit Exceeded: You've spent GH₵{total_spent:.2f} which is over your {duration} limit of GH₵{limit_value:.2f}.")
+        elif total_spent >= 0.9 * limit_value:
+            flash(f"⚠️ Warning: You've spent GH₵{total_spent:.2f}, which is 90% of your {duration} limit of GH₵{limit_value:.2f}.", "warning")
+            send_email(session['email'], f"⚠️ Warning: You've spent GH₵{total_spent:.2f}, which is 90% of your {duration} limit of GH₵{limit_value:.2f}.")
+        else:
+            flash("Expense added successfully.", "success")
+    except Exception as e:
+        print(f"Email sending error: {e}")
+        flash("Expense added but failed to send email notification.", "warning")
+
     return redirect("/display")
 
-
-
-#DISPLAY---graph 
-
-@app.route("/display")
-def display():
-    print(session["username"],session['id'])
-    
+@app.route("/history")
+def history():
     cursor = mysql.connection.cursor()
-    cursor.execute('SELECT * FROM expenses WHERE userid = % s AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
+    cursor.execute('SELECT * FROM expenses WHERE userid = %s ORDER BY date DESC', (session['id'],))
     expense = cursor.fetchall()
-  
-       
-    return render_template('display.html' ,expense = expense)
-                          
-
+    return render_template('history.html', expense=expense)
 
 
 #delete---the--data
@@ -405,6 +476,11 @@ def logout():
    session.pop('id', None)
    session.pop('username', None)
    return render_template('home.html')
+
+@app.route("/display")
+def display():
+    return redirect("/history")
+
 
              
 
