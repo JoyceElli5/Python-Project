@@ -829,14 +829,17 @@
                     </li>
                 </ul>
                 <div class="user-profile">
-                    <div class="notification">
-                        <i class="fa-regular fa-bell"></i>
+                   <div class="notification">
+                   <i class="fa-regular fa-bell"></i>
+                   </div>
+                   <div class="profile">
+                   <span>{{ username }}</span>
+                   <div class="avatar">
+                  {{ username.split(' ')[0][0] }}{{ username.split(' ')[1][0] if username.split(' ')|length > 1 else '' }}
+                        </div>
                     </div>
-                    <div class="profile">
-                        <span>Joseph Mitchell</span>
-                        <div class="avatar">JM</div>
-                    </div>
-                </div>
+               </div>
+
             </nav>
         </header>
 

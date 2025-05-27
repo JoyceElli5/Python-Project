@@ -53,11 +53,11 @@ def send_email(to_email, content):
 #HOME--PAGE
 @app.route("/home")
 def home():
-    return render_template("homepage.html")
+    return render_template("homepage.html", username=session.get('username'))
 
 @app.route("/")
 def add():
-    return render_template("index.html")
+    return render_template("index.html",username=session.get('username'))
 
 
 
@@ -139,7 +139,7 @@ def adding():
         cursor.execute('SELECT COUNT(*) FROM limits WHERE userid = %s', (user_id,))
         has_limit = cursor.fetchone()[0] > 0
 
-    return render_template("add.html", has_limit=has_limit)
+    return render_template("add.html", has_limit=has_limit, username=session.get('username'))
 
 @app.route('/addexpense', methods=['GET', 'POST'])
 def addexpense():
@@ -151,8 +151,13 @@ def addexpense():
         category = request.form['category']
         user_id = session['id']
 
+        # Default no limit
+        session['has_limit'] = False
+
         # Check if user wants to use previous limit
         use_previous_limit = request.form.get('use_previous_limit') == 'yes'
+
+        cursor = mysql.connection.cursor()
 
         # Handle limit setting
         if not use_previous_limit:
@@ -160,15 +165,13 @@ def addexpense():
             limit_type = request.form.get('limit_type')
 
             if set_limit and limit_type:
-                cursor = mysql.connection.cursor()
                 cursor.execute(
                     'INSERT INTO limits (userid, limitss, duration) VALUES (%s, %s, %s)',
                     (user_id, set_limit, limit_type)
                 )
                 mysql.connection.commit()
-                session['has_limit'] = True  # Mark that the user now has a limit
-        elif use_previous_limit:
-            cursor = mysql.connection.cursor()
+                session['has_limit'] = True
+        else:
             cursor.execute('SELECT limitss, duration FROM limits WHERE userid = %s ORDER BY id DESC LIMIT 1', (user_id,))
             limit_data = cursor.fetchone()
             if not limit_data:
@@ -179,13 +182,12 @@ def addexpense():
             session['has_limit'] = True
 
         # Insert the expense
-        cursor = mysql.connection.cursor()
         cursor.execute('INSERT INTO expenses VALUES (NULL, %s, %s, %s, %s, %s, %s)',
                        (user_id, date, expensename, amount, paymode, category))
         mysql.connection.commit()
 
         # Only check limits if one was set
-        if session.get('has_limit') and set_limit and limit_type:
+        if session['has_limit'] and set_limit and limit_type:
             limit_value = float(set_limit)
             duration = limit_type.lower()
 
@@ -229,6 +231,7 @@ def addexpense():
 
         return redirect("/display")
 
+
     
 @app.route("/check_limit")
 def check_limit():
@@ -245,7 +248,7 @@ def history():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM expenses WHERE userid = %s ORDER BY date DESC', (session['id'],))
     expense = cursor.fetchall()
-    return render_template('history.html', expense=expense)
+    return render_template('history.html', expense=expense, username=session.get('username'))
 
 
 #delete---the--data
@@ -329,7 +332,7 @@ def limitn():
         limit_value = 0
         duration = "Not Set"
 
-    return render_template("limit.html", limit_value=limit_value, limit_type=duration)
+    return render_template("limit.html", limit_value=limit_value, limit_type=duration, username=session.get('username'))
 
 
 #REPORT
