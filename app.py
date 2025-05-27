@@ -12,7 +12,7 @@ app.secret_key = 'a'
   
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'plantain2020'
+app.config['MYSQL_PASSWORD'] = 'Confrontation@433'
 app.config['MYSQL_DB'] = 'expense_tracker'
 
 mysql = MySQL(app)
