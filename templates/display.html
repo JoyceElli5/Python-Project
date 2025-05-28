@@ -1,184 +1,450 @@
 {% extends "base.html" %}
 
-{% block title %}Expenses | MyBudget{% endblock %}
+{% block title %}Expense History - MoneyTrack{% endblock %}
 
-{% block body %}
-<h2 class="page-title"><i class="fas fa-history"></i> EXPENSES</h2>
+{% block page_title %}Expense History{% endblock %}
 
-<div class="expense-list">
-    {% if expense %}
-    {% for row in expense %}
-    <div class="expense-card">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-2">
-                    <span class="date-badge">{{row[2]}}</span>
-                </div>
-                <div class="col-md-2">
-                    <h6 class="mb-0">{{row[3]}}</h6>
-                </div>
-                <div class="col-md-2">
-                    <span class="text-danger font-weight-bold">GH${{row[4]}}</span>
-                </div>
-                <div class="col-md-2">
-                    <span class="payment-badge">{{row[5]}}</span>
-                </div>
-                <div class="col-md-2">
-                    <span class="category-badge">{{row[6]}}</span>
-                </div>
-                <div class="col-md-2 d-flex">
-                    <a href="/edit/{{row[0]}}" class="btn-action btn-edit mr-2">Edit</a>
-                    <a href="/delete/{{row[0]}}" class="btn-action btn-delete btnDelete">Delete</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-    {% else %}
-    <div class="empty-state">
-        <h5><a href="/add">ADD-DATA</a> to Display</h5>
-        <img src="../static/images/not-found.png" alt="No data found" class="img-fluid">
-    </div>
-    {% endif %}
+{% block breadcrumb %}
+<div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    <span>Dashboard</span>
 </div>
-
-{% if expense %}
-<div class="row mt-5">
-    <div class="col-md-6">
-        <h3 class="breakdown-title">Expense Breakdown</h3>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Food</div>
-                <div id="tfood" class="category-amount">GHc{{ t_food }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Entertainment</div>
-                <div id="tentertainment" class="category-amount">GHc {{ t_entertainment }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Business</div>
-                <div id="tbusiness" class="category-amount">GHc{{ t_business }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Rent</div>
-                <div id="trent" class="category-amount">GHc{{ t_rent }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">EMI</div>
-                <div id="temi" class="category-amount">GHc{{ t_EMI }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Other</div>
-                <div id="tother" class="category-amount">GHc{{ t_other }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card total-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Total</div>
-                <div class="category-amount">GHc {{ total }}</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="chart-container">
-            <canvas id="myChart"></canvas>
-        </div>
-    </div>
+<span class="breadcrumb-separator">/</span>
+<div class="breadcrumb-item">
+    <i class="fas fa-history"></i>
+    <span>History</span>
 </div>
-{% endif %}
+{% endblock %}
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-3">
+    <!-- Main Content -->
+    <div class="xl:col-span-2">
+        <!-- Filters and Search -->
+        <div class="card mb-5" data-aos="fade-up">
+            <div class="card-body">
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+                        <div style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; 
+                                                           transform: translateY(-50%); color: var(--text-secondary);"></i>
+                            <input type="text" 
+                                   id="searchInput" 
+                                   placeholder="Search expenses..." 
+                                   style="padding-left: 40px; width: 250px;" 
+                                   class="form-control">
+                        </div>
+                        
+                        <select id="categoryFilter" class="form-control form-select" style="width: auto;">
+                            <option value="">All Categories</option>
+                            <option value="food">Food</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="business">Business</option>
+                            <option value="rent">Rent</option>
+                            <option value="EMI">EMI</option>
+                            <option value="other">Other</option>
+                        </select>
+                        
+                        <select id="paymentFilter" class="form-control form-select" style="width: auto;">
+                            <option value="">All Payment Methods</option>
+                            <option value="cash">Cash</option>
+                            <option value="debitcard">Debit Card</option>
+                            <option value="creditcard">Credit Card</option>
+                            <option value="epayment">E-Payment</option>
+                            <option value="onlinebanking">Online Banking</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="exportBtn" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                        <a href="/add" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i>
+                            Add New
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense List -->
+        <div class="card" data-aos="fade-up" data-aos-delay="200">
+            <div class="card-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 class="card-title">All Expenses</h3>
+                        <p class="card-subtitle">{{ expense|length if expense else 0 }} total entries</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary btn-sm" onclick="toggleView('list')">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="toggleView('grid')">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if expense %}
+                    <div id="expenseList">
+                        {% for row in expense %}
+                        <div class="expense-item" data-category="{{ row[6] }}" data-payment="{{ row[5] }}" 
+                             style="display: flex; align-items: center; padding: 1.5rem; 
+                                    border: 1px solid var(--gray-200); border-radius: var(--radius-lg); 
+                                    margin-bottom: 1rem; transition: all var(--transition-fast); 
+                                    background-color: var(--bg-primary);">
+                            
+                            <!-- Category Icon -->
+                            <div style="width: 60px; height: 60px; border-radius: 50%; 
+                                        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                                        display: flex; align-items: center; justify-content: center; 
+                                        color: white; margin-right: 1.5rem; flex-shrink: 0;">
+                                {% if row[6] == 'food' %}
+                                    <i class="fas fa-utensils"></i>
+                                {% elif row[6] == 'entertainment' %}
+                                    <i class="fas fa-film"></i>
+                                {% elif row[6] == 'business' %}
+                                    <i class="fas fa-briefcase"></i>
+                                {% elif row[6] == 'rent' %}
+                                    <i class="fas fa-home"></i>
+                                {% elif row[6] == 'EMI' %}
+                                    <i class="fas fa-credit-card"></i>
+                                {% else %}
+                                    <i class="fas fa-shopping-bag"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Expense Details -->
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                    <div>
+                                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; font-size: 1.125rem;">
+                                            {{ row[3] }}
+                                        </h4>
+                                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                            <span style="display: inline-flex; align-items: center; gap: 0.25rem; 
+                                                         font-size: 0.875rem; color: var(--text-secondary);">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                {{ row[2] }}
+                                            </span>
+                                            <span style="display: inline-flex; align-items: center; gap: 0.25rem; 
+                                                         padding: 0.25rem 0.75rem; background-color: var(--primary-color); 
+                                                         color: white; border-radius: 20px; font-size: 0.75rem; font-weight: 500;">
+                                                <i class="fas fa-tag"></i>
+                                                {{ row[6].title() }}
+                                            </span>
+                                            <span style="display: inline-flex; align-items: center; gap: 0.25rem; 
+                                                         padding: 0.25rem 0.75rem; background-color: var(--gray-100); 
+                                                         color: var(--text-secondary); border-radius: 20px; font-size: 0.75rem;">
+                                                {% if row[5] == 'cash' %}
+                                                    <i class="fas fa-money-bill"></i>
+                                                {% elif row[5] == 'debitcard' %}
+                                                    <i class="fas fa-credit-card"></i>
+                                                {% elif row[5] == 'creditcard' %}
+                                                    <i class="fas fa-credit-card"></i>
+                                                {% elif row[5] == 'epayment' %}
+                                                    <i class="fas fa-mobile-alt"></i>
+                                                {% else %}
+                                                    <i class="fas fa-university"></i>
+                                                {% endif %}
+                                                {{ row[5].title() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger-color); margin-bottom: 0.25rem;">
+                                            -GH${{ row[4] }}
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <a href="/edit/{{ row[0] }}" 
+                                               style="padding: 0.5rem; background-color: var(--success-color); 
+                                                      color: white; border-radius: var(--radius-md); 
+                                                      text-decoration: none; transition: all var(--transition-fast);"
+                                               onmouseover="this.style.backgroundColor='#16a34a'"
+                                               onmouseout="this.style.backgroundColor='var(--success-color)'">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="/delete/{{ row[0] }}" 
+                                               class="delete-btn"
+                                               style="padding: 0.5rem; background-color: var(--danger-color); 
+                                                      color: white; border-radius: var(--radius-md); 
+                                                      text-decoration: none; transition: all var(--transition-fast);"
+                                               onmouseover="this.style.backgroundColor='#dc2626'"
+                                               onmouseout="this.style.backgroundColor='var(--danger-color)'"
+                                               onclick="return confirm('Are you sure you want to delete this expense?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem;">
+                        <div style="width: 120px; height: 120px; margin: 0 auto 2rem; 
+                                    background: linear-gradient(135deg, var(--gray-100), var(--gray-200)); 
+                                    border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-receipt" style="font-size: 3rem; color: var(--gray-400);"></i>
+                        </div>
+                        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">No expenses found</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                            Start tracking your expenses to see them here. Add your first expense to get started with better financial management.
+                        </p>
+                        <a href="/add" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus"></i>
+                            Add Your First Expense
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
         {% if expense %}
-        // Get values from the HTML elements
-        let food = document.getElementById('tfood').innerHTML.replace('₹ ', '').trim();
-        let entertainment = document.getElementById('tentertainment').innerHTML.replace('₹ ', '').trim();
-        let business = document.getElementById('tbusiness').innerHTML.replace('₹ ', '').trim();
-        let rent = document.getElementById('trent').innerHTML.replace('₹ ', '').trim();
-        let emi = document.getElementById('temi').innerHTML.replace('₹ ', '').trim();
-        let other = document.getElementById('tother').innerHTML.replace('₹ ', '').trim();
+        <!-- Summary Stats -->
+        <div class="card mb-4" data-aos="fade-left" data-aos-delay="300">
+            <div class="card-header">
+                <h3 class="card-title">📊 Summary</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; 
+                                padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Total Spent</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger-color);">GH${{ total or '0.00' }}</div>
+                        </div>
+                        <i class="fas fa-chart-line" style="font-size: 2rem; color: var(--primary-color);"></i>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">{{ expense|length }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Total Entries</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">
+                                GH${{ (total / expense|length)|round(2) if expense and total else '0.00' }}
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Average</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        // Create the chart
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Food', 'Entertainment', 'Business', 'Rent', 'EMI', 'Other'],
-                datasets: [{
-                    label: 'Expenses Chart',
-                    data: [food, entertainment, business, rent, emi, other],
-                    backgroundColor: [
-                        '#f87171', // red
-                        '#1e293b', // dark blue
-                        '#facc15', // yellow
-                        '#94a3b8', // gray
-                        '#3b82f6', // blue
-                        '#f97316'  // orange
-                    ],
-                    borderWidth: 1,
-                    borderColor: '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 12
-                            },
-                            padding: 20
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'EXPENSE BREAKDOWN',
-                        font: {
-                            size: 16,
-                            weight: 'bold'
-                        },
-                        padding: {
-                            top: 10,
-                            bottom: 30
-                        }
-                    }
-                },
-                cutout: '65%',
-                animation: {
-                    animateScale: true,
-                    animateRotate: true
-                }
+        <!-- Category Breakdown -->
+        <div class="card mb-4" data-aos="fade-left" data-aos-delay="400">
+            <div class="card-header">
+                <h3 class="card-title">📈 Category Breakdown</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% if t_food %}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 12px; height: 12px; background-color: var(--primary-color); border-radius: 50%;"></div>
+                            <span style="font-weight: 500;">Food</span>
+                        </div>
+                        <span style="font-weight: 600; color: var(--text-primary);">GH${{ t_food }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if t_entertainment %}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 12px; height: 12px; background-color: var(--success-color); border-radius: 50%;"></div>
+                            <span style="font-weight: 500;">Entertainment</span>
+                        </div>
+                        <span style="font-weight: 600; color: var(--text-primary);">GH${{ t_entertainment }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if t_business %}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 12px; height: 12px; background-color: var(--warning-color); border-radius: 50%;"></div>
+                            <span style="font-weight: 500;">Business</span>
+                        </div>
+                        <span style="font-weight: 600; color: var(--text-primary);">GH${{ t_business }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if t_rent %}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 12px; height: 12px; background-color: var(--danger-color); border-radius: 50%;"></div>
+                            <span style="font-weight: 500;">Rent</span>
+                        </div>
+                        <span style="font-weight: 600; color: var(--text-primary);">GH${{ t_rent }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if t_EMI %}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 12px; height: 12px; background-color: var(--gray-500); border-radius: 50%;"></div>
+                            <span style="font-weight: 500;">EMI</span>
+                        </div>
+                        <span style="font-weight: 600; color: var(--text-primary);">GH${{ t_EMI }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if t_other %}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 12px; height: 12px; background-color: var(--accent-color); border-radius: 50%;"></div>
+                            <span style="font-weight: 500;">Other</span>
+                        </div>
+                        <span style="font-weight: 600; color: var(--text-primary);">GH${{ t_other }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card" data-aos="fade-left" data-aos-delay="500">
+            <div class="card-header">
+                <h3 class="card-title">📊 Visual Breakdown</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" style="height: 250px;"></canvas>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search and Filter Functionality
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const paymentFilter = document.getElementById('paymentFilter');
+    const expenseItems = document.querySelectorAll('.expense-item');
+
+    function filterExpenses() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const categoryValue = categoryFilter.value;
+        const paymentValue = paymentFilter.value;
+
+        expenseItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            const category = item.dataset.category;
+            const payment = item.dataset.payment;
+
+            const matchesSearch = text.includes(searchTerm);
+            const matchesCategory = !categoryValue || category === categoryValue;
+            const matchesPayment = !paymentValue || payment === paymentValue;
+
+            if (matchesSearch && matchesCategory && matchesPayment) {
+                item.style.display = 'flex';
+                item.style.animation = 'fadeIn 0.3s ease-in-out';
+            } else {
+                item.style.display = 'none';
             }
         });
-        {% endif %}
+    }
 
-        // Add confirmation for delete buttons
-        document.querySelectorAll('.btnDelete').forEach(button => {
-            button.addEventListener('click', function (e) {
-                if (!confirm('Are you sure you want to delete this expense?')) {
-                    e.preventDefault();
+    searchInput.addEventListener('input', filterExpenses);
+    categoryFilter.addEventListener('change', filterExpenses);
+    paymentFilter.addEventListener('change', filterExpenses);
+
+    // Export functionality
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        // Simple CSV export
+        let csvContent = "Date,Description,Amount,Category,Payment Method\n";
+        
+        expenseItems.forEach(item => {
+            if (item.style.display !== 'none') {
+                const cells = item.querySelectorAll('span, h4, div');
+                // Extract data and add to CSV (simplified)
+                // In a real implementation, you'd properly parse the data
+            }
+        });
+        
+        Toastify({
+            text: "Export feature coming soon!",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "linear-gradient(135deg, #6366f1, #4f46e5)",
+            close: true
+        }).showToast();
+    });
+
+    // Chart
+    {% if expense %}
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+                {% if t_food %}'Food',{% endif %}
+                {% if t_entertainment %}'Entertainment',{% endif %}
+                {% if t_business %}'Business',{% endif %}
+                {% if t_rent %}'Rent',{% endif %}
+                {% if t_EMI %}'EMI',{% endif %}
+                {% if t_other %}'Other'{% endif %}
+            ],
+            datasets: [{
+                data: [
+                    {% if t_food %}{{ t_food }},{% endif %}
+                    {% if t_entertainment %}{{ t_entertainment }},{% endif %}
+                    {% if t_business %}{{ t_business }},{% endif %}
+                    {% if t_rent %}{{ t_rent }},{% endif %}
+                    {% if t_EMI %}{{ t_EMI }},{% endif %}
+                    {% if t_other %}{{ t_other }}{% endif %}
+                ],
+                backgroundColor: [
+                    'rgb(99, 102, 241)',
+                    'rgb(16, 185, 129)',
+                    'rgb(245, 158, 11)',
+                    'rgb(239, 68, 68)',
+                    'rgb(107, 114, 128)',
+                    'rgb(245, 158, 11)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
                 }
-            });
+            }
+        }
+    });
+    {% endif %}
+
+    // Hover effects for expense items
+    expenseItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = 'var(--shadow-lg)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
         });
     });
 </script>

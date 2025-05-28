@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Account - MoneyTrack{% endblock %}
+
+{% block page_title %}Edit Account{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    <a href="/home">Dashboard</a>
+</div>
+<div class="breadcrumb-item">
+    <i class="fas fa-credit-card"></i>
+    <span>Edit Account</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card" data-aos="fade-up">
+        <div class="card-header">
+            <h3 class="card-title">✏️ Edit Account</h3>
+            <p class="card-subtitle">Update your account information</p>
+        </div>
+        <div class="card-body">
+            <form method="POST" class="space-y-4">
+                <div class="form-group">
+                    <label for="account_name" class="form-label">
+                        <i class="fas fa-tag"></i>
+                        Account Name
+                    </label>
+                    <input type="text" id="account_name" name="account_name" class="form-control" 
+                           value="{{ account.account_name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="account_type" class="form-label">
+                        <i class="fas fa-list"></i>
+                        Account Type
+                    </label>
+                    <input type="text" class="form-control" value="{{ account.account_type.replace('_', ' ').title() }}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="balance" class="form-label">
+                        <i class="fas fa-dollar-sign"></i>
+                        Current Balance
+                    </label>
+                    <input type="number" id="balance" name="balance" class="form-control" 
+                           step="0.01" min="0" value="{{ account.balance }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="account_number" class="form-label">
+                        <i class="fas fa-credit-card"></i>
+                        Last 4 Digits
+                    </label>
+                    <input type="text" class="form-control" value="•••• •••• •••• {{ account.account_number }}" readonly>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i>
+                        Update Account
+                    </button>
+                    <a href="/home" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

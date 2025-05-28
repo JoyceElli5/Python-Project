@@ -1,168 +1,408 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block body %}
-<div class="container ">
-                                                                                              
+{% block title %}Yearly Expenses - MoneyTrack{% endblock %}
 
-<div class="row">
-    <div class="col-md-5">
-        <h3 class="mt-5">YEAR Expense Breakdown</h3>
-        
+{% block page_title %}Yearly Expenses{% endblock %}
 
-
-        <div class="card shadow mb-2 bg-white rounded-pill">
-            <div class="card-body ">
-            <div class="row">
-                <div value = "month" class="col-md-6"> </div>
-                <div class="col-md-6">  AMOUNT   </div>
-             </div>
-            </div>
-        </div>
-        {% for row in texpense %}  
-        
-        <div class="card shadow mb-2 bg-white rounded-bottom">
-            <div class="card-body ">
-            <div class="row">
-                <div id ="ttime" class="col-md-6">{{row [0]}}</div>
-                <div id="tamount" class="col-md-6">   {{row[1] }}   </div>
-             </div>
-            </div>
-        </div>
-                
-     
-     {% endfor %}
+{% block breadcrumb %}
+<div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    <span>Dashboard</span>
 </div>
+<span class="breadcrumb-separator">/</span>
+<div class="breadcrumb-item">
+    <i class="fas fa-calendar"></i>
+    <span>Yearly</span>
 </div>
-<section>
+{% endblock %}
 
-    <div class="row">
-        <div class="col-md-6">
-            <h3 class="mt-5">Expense Breakdown BY Category</h3>
- 
-            <div class="card shadow mb-2 bg-white rounded-bottom">
-                <div class="card-body ">
-                <div class="row">
-                    <div class="col-md-6">Food</div>
-                    <div id="tfood" class="col-md-6">   {{ t_food}}   </div>
-                 </div>
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3">
+    <!-- Month-based Breakdown -->
+    <div class="lg:col-span-1">
+        <div class="card mb-5" data-aos="fade-up">
+            <div class="card-header">
+                <h3 class="card-title">Monthly Breakdown</h3>
+                <p class="card-subtitle">Expenses by month</p>
+            </div>
+            <div class="card-body">
+                <div style="margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--gray-200);">
+                    <div style="display: flex; justify-content: space-between; font-weight: 600; color: var(--text-primary);">
+                        <span>Month</span>
+                        <span>Amount</span>
+                    </div>
                 </div>
+                
+                {% if texpense %}
+                    {% for row in texpense %}
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; 
+                                border-bottom: 1px solid var(--gray-200);">
+                        <span style="color: var(--text-primary);">{{ row[0] }}</span>
+                        <span style="font-weight: 600; color: var(--danger-color);">GH${{ row[1] }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 2rem 0;">
+                        <i class="fas fa-calendar" style="font-size: 2rem; color: var(--gray-300); margin-bottom: 1rem;"></i>
+                        <p style="color: var(--text-secondary);">No expenses recorded this year</p>
+                    </div>
+                {% endif %}
             </div>
- 
-            <div class="card shadow mb-2 bg-white rounded">
-             <div class="card-body">
-             <div class="row">
-                 <div class="col-md-6">Entertainment</div>
-                 <div id="tentertainment" class="col-md-6"> {{ t_entertainment}}   </div>
-              </div>
-             </div>
-         </div>
- 
- 
-         <div class="card shadow mb-2 bg-white rounded">
-             <div class="card-body">
-             <div class="row">
-                 <div class="col-md-6">Business</div>
-                 <div id="tbusiness" class="col-md-6"> {{t_business}}   </div>
-              </div>
-             </div>
-         </div>
- 
- 
-         <div class="card shadow mb-2 bg-white rounded">
-             <div class="card-body">
-             <div class="row">
-                 <div  class="col-md-6">Rent</div>
-                 <div id="trent" class="col-md-6"> {{  t_rent }}  </div>
-              </div>
-             </div>
-         </div>
- 
- 
-         <div class="card shadow mb-2 bg-white rounded">
-             <div class="card-body">
-             <div class="row">
-                 <div class="col-md-6">EMI</div>
-                 <div id="temi"  class="col-md-6">{{ t_EMI }}   </div>
-              </div>
-             </div>
-         </div>
- 
- 
-         <div class="card shadow mb-2 bg-white rounded">
-             <div class="card-body">
-             <div class="row">
-                 <div class="col-md-6">Other</div>
-                 <div id="tother" class="col-md-6"> {{ t_other}}</div>
-              </div>
-             </div>
-         </div>
- 
-         <div class="card shadow mb-2 btn-outline-danger rounded-pill">
-             <div class="card-body">
-             <div class="row">
-                 <div class="col-md-6">Total</div>
-                 <div class="col-md-6">₹ {{total}}  </div>
-              </div>
-             </div>
-         </div>
- 
-        </div>
-        <div class="col-md-6">
-         <canvas id="myChart" width="400" height="400"></canvas>
-         <script>
-             let food = document.getElementById('tfood').innerHTML
-             let entertainment = document.getElementById('tentertainment').innerHTML
-             let business = document.getElementById('tbusiness').innerHTML
-             let rent = document.getElementById('trent').innerHTML
-             let emi = document.getElementById('temi').innerHTML
-             let other = document.getElementById('tother').innerHTML
-         var ctx = document.getElementById('myChart').getContext('2d');
-         var myChart = new Chart(ctx, {
-             type: 'doughnut',
-             data: {
-                 labels: ['Food', 'Entertainment', 'Business', 'Rent', 'EMI', 'Other'],
-                 datasets: [{
-                     label: 'Expenses Chart',
-                     data: [food, entertainment, business, rent, emi, other],
-                     backgroundColor: [
-                     'rgb(255, 99, 132)',
-                     'rgb(0, 0, 0)',
-                     'rgb(255, 205, 86)',
-                     'rgb(201, 203, 207)',
-                        'rgb(54, 162, 235)',
-                         'rgb(215, 159, 64)'
-                     ],
-                    
-                 }]
-             },
-             options: {
-                 responsive: true,
-                 plugins: {
-       legend: {
-         position: 'bottom',
-       },
-       title: {
-         display: true,
-         text: 'EXPENSE BREAKDOWN'
-       }
-     }
-             }
-         });
- 
- 
- 
- 
-  
-         </script>
         </div>
     </div>
- </div>
 
+    <!-- Category Breakdown -->
+    <div class="lg:col-span-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Category List -->
+            <div class="card" data-aos="fade-up" data-aos-delay="200">
+                <div class="card-header">
+                    <h3 class="card-title">Category Breakdown</h3>
+                    <p class="card-subtitle">Yearly expenses by category</p>
+                </div>
+                <div class="card-body">
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        {% if t_food %}
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; 
+                                    background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; 
+                                            background-color: var(--primary-color); display: flex; 
+                                            align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <span style="font-weight: 500;">Food</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--text-primary);" id="tfood">GH${{ t_food }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if t_entertainment %}
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; 
+                                    background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; 
+                                            background-color: var(--success-color); display: flex; 
+                                            align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-film"></i>
+                                </div>
+                                <span style="font-weight: 500;">Entertainment</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--text-primary);" id="tentertainment">GH${{ t_entertainment }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if t_business %}
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; 
+                                    background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; 
+                                            background-color: var(--warning-color); display: flex; 
+                                            align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <span style="font-weight: 500;">Business</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--text-primary);" id="tbusiness">GH${{ t_business }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if t_rent %}
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; 
+                                    background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; 
+                                            background-color: var(--danger-color); display: flex; 
+                                            align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <span style="font-weight: 500;">Rent</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--text-primary);" id="trent">GH${{ t_rent }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if t_EMI %}
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; 
+                                    background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; 
+                                            background-color: var(--gray-500); display: flex; 
+                                            align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <span style="font-weight: 500;">EMI</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--text-primary);" id="temi">GH${{ t_EMI }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if t_other %}
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; 
+                                    background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; 
+                                            background-color: var(--accent-color); display: flex; 
+                                            align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
+                                <span style="font-weight: 500;">Other</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--text-primary);" id="tother">GH${{ t_other }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; 
+                                    background-color: var(--primary-color); border-radius: var(--radius-lg); 
+                                    color: white; margin-top: 0.5rem;">
+                            <span style="font-weight: 600;">Total</span>
+                            <span style="font-weight: 700;">GH${{ total }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart -->
+            <div class="card" data-aos="fade-up" data-aos-delay="300">
+                <div class="card-header">
+                    <h3 class="card-title">Visual Breakdown</h3>
+                    <p class="card-subtitle">Yearly spending by category</p>
+                </div>
+                <div class="card-body">
+                    <canvas id="myChart" style="height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Yearly Trends -->
+        <div class="card mt-5" data-aos="fade-up" data-aos-delay="400">
+            <div class="card-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 class="card-title">Yearly Trends</h3>
+                        <p class="card-subtitle">Monthly expenses throughout the year</p>
+                    </div>
+                    <select class="form-control form-select" style="width: auto;">
+                        <option>Current Year</option>
+                        <option>Last Year</option>
+                        <option>Compare Years</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" style="height: 250px;"></canvas>
+            </div>
+        </div>
 
+        <!-- Year Summary Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+            <div class="card" data-aos="fade-up" data-aos-delay="500">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                                Average Monthly
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">
+                                GH${{ (total / 12)|round(2) if total else '0.00' }}
+                            </div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                                    color: white; padding: 0.75rem; border-radius: 50%; width: 48px; height: 48px; 
+                                    display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-</section>
+            <div class="card" data-aos="fade-up" data-aos-delay="600">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                                Highest Month
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning-color);">
+                                {% if texpense %}
+                                    GH${{ texpense|map(attribute=1)|max }}
+                                {% else %}
+                                    GH$0.00
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, var(--warning-color), #ea580c); 
+                                    color: white; padding: 0.75rem; border-radius: 50%; width: 48px; height: 48px; 
+                                    display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-
+            <div class="card" data-aos="fade-up" data-aos-delay="700">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                                Lowest Month
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success-color);">
+                                {% if texpense %}
+                                    GH${{ texpense|map(attribute=1)|min }}
+                                {% else %}
+                                    GH$0.00
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, var(--success-color), #16a34a); 
+                                    color: white; padding: 0.75rem; border-radius: 50%; width: 48px; height: 48px; 
+                                    display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+    // Category Chart
+    {% if total and total > 0 %}
+    const ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+                {% if t_food %}'Food',{% endif %}
+                {% if t_entertainment %}'Entertainment',{% endif %}
+                {% if t_business %}'Business',{% endif %}
+                {% if t_rent %}'Rent',{% endif %}
+                {% if t_EMI %}'EMI',{% endif %}
+                {% if t_other %}'Other'{% endif %}
+            ],
+            datasets: [{
+                data: [
+                    {% if t_food %}{{ t_food }},{% endif %}
+                    {% if t_entertainment %}{{ t_entertainment }},{% endif %}
+                    {% if t_business %}{{ t_business }},{% endif %}
+                    {% if t_rent %}{{ t_rent }},{% endif %}
+                    {% if t_EMI %}{{ t_EMI }},{% endif %}
+                    {% if t_other %}{{ t_other }}{% endif %}
+                ],
+                backgroundColor: [
+                    'rgb(99, 102, 241)',
+                    'rgb(16, 185, 129)',
+                    'rgb(245, 158, 11)',
+                    'rgb(239, 68, 68)',
+                    'rgb(107, 114, 128)',
+                    'rgb(245, 158, 11)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'EXPENSE BREAKDOWN',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Trend Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Monthly Expenses',
+                data: [
+                    {% if texpense %}
+                        {% for row in texpense %}
+                            {{ row[1] }}{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        3200, 2800, 3500, 4200, 3800, 4500, 5000, 4800, 5200, 4700, 5500, {{ total or 0 }}
+                    {% endif %}
+                ],
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: 'rgb(99, 102, 241)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: 'rgb(99, 102, 241)',
+                pointBorderColor: 'white',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return 'GH$' + value.toLocaleString();
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgb(99, 102, 241)',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Expenses: GH$' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
 {% endblock %}

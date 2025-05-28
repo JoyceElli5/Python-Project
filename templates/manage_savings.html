@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Savings - MoneyTrack{% endblock %}
+
+{% block page_title %}Savings Goals{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    <a href="/home">Dashboard</a>
+</div>
+<div class="breadcrumb-item">
+    <i class="fas fa-piggy-bank"></i>
+    <span>Manage Savings</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Current Savings Goals -->
+    <div class="card" data-aos="fade-up">
+        <div class="card-header">
+            <h3 class="card-title">🎯 Savings Goals</h3>
+            <p class="card-subtitle">Track your financial objectives</p>
+        </div>
+        <div class="card-body">
+            {% if goals %}
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    {% for goal in goals %}
+                    <div style="padding: 1.5rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">{{ goal.goal_name }}</h4>
+                                <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">{{ goal.description }}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success-color);">
+                                    {{ "{:.0f}".format((goal.current_amount / goal.target_amount) * 100) }}%
+                                </div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                                    GH${{ "{:,.2f}".format(goal.current_amount) }} / GH${{ "{:,.2f}".format(goal.target_amount) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div style="background-color: var(--gray-200); border-radius: 10px; height: 8px; margin-bottom: 1rem;">
+                            <div style="background: linear-gradient(90deg, var(--success-color), #16a34a); 
+                                        height: 100%; border-radius: 10px; 
+                                        width: {{ (goal.current_amount / goal.target_amount * 100)|round }}%;">
+                            </div>
+                        </div>
+                        
+                        <!-- Update Progress Form -->
+                        <form method="POST" action="/savings/update/{{ goal.id }}" style="display: flex; gap: 0.5rem;">
+                            <div class="input-group" style="flex: 1;">
+                                <span class="input-group-text">GH$</span>
+                                <input type="number" class="form-control" name="current_amount" 
+                                       step="0.01" value="{{ goal.current_amount }}" 
+                                       placeholder="Update amount">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save"></i>
+                                Update
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-piggy-bank" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                    <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem;">No savings goals yet</h4>
+                    <p style="color: var(--text-muted);">Create your first savings goal to start building wealth</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Add New Savings Goal -->
+    <div class="card" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-header">
+            <h3 class="card-title">➕ New Savings Goal</h3>
+            <p class="card-subtitle">Set a new financial target</p>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/savings/add">
+                <div class="form-group mb-4">
+                    <label for="goal_name" class="form-label">Goal Name</label>
+                    <input type="text" class="form-control" id="goal_name" name="goal_name" 
+                           placeholder="e.g., Emergency Fund, Vacation, New Car" required>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="target_amount" class="form-label">Target Amount</label>
+                    <div class="input-group">
+                        <span class="input-group-text">GH$</span>
+                        <input type="number" class="form-control" id="target_amount" name="target_amount" 
+                               step="0.01" min="0" placeholder="10000.00" required>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="current_amount" class="form-label">Current Amount</label>
+                    <div class="input-group">
+                        <span class="input-group-text">GH$</span>
+                        <input type="number" class="form-control" id="current_amount" name="current_amount" 
+                               step="0.01" min="0" placeholder="0.00" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="target_date" class="form-label">Target Date (Optional)</label>
+                    <input type="date" class="form-control" id="target_date" name="target_date">
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="description" class="form-label">Description (Optional)</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" 
+                              placeholder="Describe your savings goal..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-plus"></i>
+                    Create Savings Goal
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Savings Tips -->
+<div class="card mt-6" data-aos="fade-up" data-aos-delay="400">
+    <div class="card-header">
+        <h3 class="card-title">💰 Savings Tips</h3>
+        <p class="card-subtitle">Smart strategies to reach your goals faster</p>
+    </div>
+    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--success-color), #16a34a); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-calendar-alt" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Automate Savings</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Set up automatic transfers to make saving effortless
+                </p>
+            </div>
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-percentage" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Start Small</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Even small amounts add up over time with consistency
+                </p>
+            </div>
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--warning-color), #ea580c); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-trophy" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Celebrate Milestones</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Reward yourself when you reach savings milestones
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

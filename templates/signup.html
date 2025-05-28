@@ -1,133 +1,647 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoneyTrack - Create Your Account</title>
-    <link rel="stylesheet" href="../static/css/styles.css">
-    <link rel="stylesheet" href="../static/css/signup.css">
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Handlee&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pacifico&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poetsen+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Satisfy&display=swap"
-        rel="stylesheet">
-    <!-- AOS CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Toastify -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <!-- AOS Animation -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    
+    <style>
+        :root {
+            /* Color Palette */
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #a5b4fc;
+            --secondary-color: #10b981;
+            --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --warning-color: #f97316;
+            --success-color: #22c55e;
+            
+            /* Neutral Colors */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* Background Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            
+            /* Text Colors */
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-secondary: 'Poppins', sans-serif;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease-in-out;
+            --transition-normal: 250ms ease-in-out;
+            --transition-slow: 350ms ease-in-out;
+        }
 
-<!-- Toastify JS -->
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .auth-left {
+            flex: 1;
+            padding: var(--space-2xl);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-right {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: var(--space-2xl);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-secondary);
+            color: var(--primary-color);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--accent-color);
+        }
+
+        .auth-form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-form-header {
+            margin-bottom: var(--space-xl);
+            text-align: center;
+        }
+
+        .auth-form-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .auth-form-header p {
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: var(--space-md);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+            background-color: var(--bg-primary);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: var(--space-lg);
+        }
+
+        .input-group i {
+            position: absolute;
+            left: var(--space-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+        }
+
+        .input-group input {
+            padding-left: 2.5rem;
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+
+        .terms-checkbox input {
+            width: 16px;
+            height: 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--gray-300);
+            appearance: none;
+            cursor: pointer;
+            margin-top: 3px;
+        }
+
+        .terms-checkbox input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8l2 2 6-6'/%3e%3c/svg%3e");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 10px;
+        }
+
+        .terms-checkbox label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .terms-checkbox a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left var(--transition-normal);
+        }
+
+        .btn:hover:before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-100);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray-200);
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: var(--space-xl) 0;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: var(--gray-200);
+        }
+
+        .auth-divider span {
+            padding: 0 var(--space-md);
+        }
+
+        .social-login {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .social-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .social-btn:hover {
+            background-color: var(--gray-100);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .auth-footer {
+            margin-top: var(--space-xl);
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-right-content {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+        }
+
+        .auth-right-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-lg);
+            line-height: 1.2;
+        }
+
+        .auth-right-content p {
+            font-size: 1.125rem;
+            margin-bottom: var(--space-xl);
+            opacity: 0.9;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-md);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .feature-text p {
+            font-size: 0.875rem;
+            margin-bottom: 0;
+            opacity: 0.8;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: var(--space-lg);
+            right: var(--space-lg);
+            z-index: 9999;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .auth-left {
+                padding: var(--space-xl) var(--space-lg);
+            }
+
+            .auth-right {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .auth-left {
+                padding: var(--space-lg);
+            }
+
+            .auth-form-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .social-login {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container">
+    <!-- Flash Messages Container -->
+    <div class="flash-messages" id="flashMessages">
         {% with messages = get_flashed_messages(with_categories=true) %}
-  {% for category, message in messages %}
-    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
-  {% endfor %}
-{% endwith %}
-        <header>
-            <div class="logo" data-aos="fade-down" data-aos-duration="800">MoneyTrack<img class="analytics-image"
-                    src="../static/images/analysis.png" alt="image"></div>
-        </header>
-
-        <main>
-            <div class="content-left" data-aos="fade-right" data-aos-duration="1000">
-                <form class="form" action="/register" method="post">
-                    <div class="dashboard signup-form">
-                        <div class="form-header" data-aos="fade-down" data-aos-delay="200" data-aos-duration="800">
-                            <h2>Create Your Account</h2>
-                        </div>
-
-                        <div class="input-group" data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
-                            <img height="20px" src="../static/images/user.png" alt="User Icon" />
-                            <input placeholder="Full Name" type="text" name="username" required />
-                        </div>
-
-                        <div class="input-group" data-aos="fade-up" data-aos-delay="400" data-aos-duration="800">
-                            <img height="12px" src="../static/images/email.png" alt="Email Icon" />
-                            <input placeholder="Email Address" type="email" name="email" required />
-                        </div>
-
-                        <div class="input-group" data-aos="fade-up" data-aos-delay="500" data-aos-duration="800">
-                            <img height="20px" src="../static/images/password.png" alt="Password Icon" />
-                            <input placeholder="Create Password" type="password" name="password" id="password"
-                                required />
-                        </div>
-
-                        <!-- <div class="input-group" data-aos="fade-up" data-aos-delay="600" data-aos-duration="800">
-                            <img height="20px" src="../static/images/password.png" alt="Confirm Password Icon" />
-                            <input placeholder="Confirm Password" type="password" name="confirm_password"
-                                id="confirm_password" required />
-                        </div> -->
-
-                        <div class="terms-checkbox" data-aos="fade-up" data-aos-delay="700" data-aos-duration="800">
-                            <input type="checkbox" id="terms" name="terms" required />
-                            <label for="terms">I agree to the <a href="/terms">Terms of Service</a> and <a
-                                    href="/privacy">Privacy Policy</a></label>
-                        </div>
-
-                        <div class="form-button" data-aos="fade-up" data-aos-delay="800" data-aos-duration="800">
-                            <button type="submit" class="btn btn-primary">Create Account</button>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
-
-            <div class="content-right" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
-                <h1 data-aos="fade-up" data-aos-delay="400" data-aos-duration="800">Begin Your <br>Financial <br>Journey
-                    Today</h1>
-
-                <p class="subtitle" data-aos="fade-up" data-aos-delay="600" data-aos-duration="800">
-                    Join thousands of users who have transformed their financial habits with MoneyTrack's powerful tools
-                </p>
-
-                <div class="benefits" data-aos="fade-up" data-aos-delay="800" data-aos-duration="800">
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <div class="benefit-text">Track expenses automatically</div>
-                    </div>
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <div class="benefit-text">Set and achieve financial goals</div>
-                    </div>
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <div class="benefit-text">Get personalized insights</div>
-                    </div>
-                </div>
-
-                <div class="cta-buttons" data-aos="fade-up" data-aos-delay="1000" data-aos-duration="800">
-                    <a href="/signin" class="btn btn-secondary">Already a member? <span class="arrow">→</span></a>
-                    <a href="/signin" class="btn btn-primary">Sign In</a>
-                </div>
-            </div>
-        </main>
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
     </div>
 
-    <!-- AOS JS -->
+    <div class="auth-container">
+        <div class="auth-left" data-aos="fade-right" data-aos-duration="800">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>MoneyTrack</span>
+            </div>
+            
+            <div class="auth-form">
+                <div class="auth-form-header">
+                    <h1>Create Your Account</h1>
+                    <p>Start your financial journey today</p>
+                </div>
+                
+                <form action="/register" method="post">
+                    <div class="input-group" data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="username" class="form-control" placeholder="Full Name" required>
+                    </div>
+                    
+                    <div class="input-group" data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+                    </div>
+                    
+                    <div class="input-group" data-aos="fade-up" data-aos-delay="400" data-aos-duration="800">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Create Password" required>
+                    </div>
+                    
+                    <div class="input-group" data-aos="fade-up" data-aos-delay="500" data-aos-duration="800">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm Password" required>
+                    </div>
+                    
+                    <div class="terms-checkbox" data-aos="fade-up" data-aos-delay="600" data-aos-duration="800">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">
+                            I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" data-aos="fade-up" data-aos-delay="700" data-aos-duration="800">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="auth-divider" data-aos="fade-up" data-aos-delay="800" data-aos-duration="800">
+                    <span>Or sign up with</span>
+                </div>
+                
+                <div class="social-login" data-aos="fade-up" data-aos-delay="900" data-aos-duration="800">
+                    <button class="social-btn">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </button>
+                    <button class="social-btn">
+                        <i class="fab fa-facebook-f"></i>
+                        Facebook
+                    </button>
+                </div>
+                
+                <div class="auth-footer" data-aos="fade-up" data-aos-delay="1000" data-aos-duration="800">
+                    Already have an account? <a href="/login">Sign In</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="auth-right" data-aos="fade-left" data-aos-duration="800">
+            <div class="auth-right-content">
+                <h2 data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">Begin Your Financial Journey Today</h2>
+                
+                <p data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
+                    Join thousands of users who have transformed their financial habits with MoneyTrack's powerful tools
+                </p>
+                
+                <div class="feature-list">
+                    <div class="feature-item" data-aos="fade-up" data-aos-delay="400" data-aos-duration="800">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h3>Track Expenses</h3>
+                            <p>Automatically categorize and track all your expenses</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item" data-aos="fade-up" data-aos-delay="500" data-aos-duration="800">
+                        <div class="feature-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h3>Set Financial Goals</h3>
+                            <p>Create and achieve your savings and investment goals</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item" data-aos="fade-up" data-aos-delay="600" data-aos-duration="800">
+                        <div class="feature-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h3>Get Insights</h3>
+                            <p>Receive personalized financial insights and recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script src="../static/js/signup.js"></script>
     <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.flash-data').forEach(el => {
-      const message = el.dataset.message;
-      const category = el.dataset.category;
+        // Initialize AOS
+        AOS.init({
+            duration: 600,
+            easing: 'ease-in-out',
+            once: true
+        });
 
-      Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: category === "success" ? "green" : "red",
-        close: true
-      }).showToast();
-    });
-  });
-</script>
+        // Password validation
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Passwords don't match");
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+
+        password.addEventListener('change', validatePassword);
+        confirmPassword.addEventListener('keyup', validatePassword);
+
+        // Flash Messages Handler
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.flash-data').forEach(el => {
+                const message = el.dataset.message;
+                const category = el.dataset.category;
+
+                Toastify({
+                    text: message,
+                    duration: 4000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: category === "success" 
+                        ? "linear-gradient(135deg, #22c55e, #16a34a)" 
+                        : "linear-gradient(135deg, #ef4444, #dc2626)",
+                    close: true,
+                    stopOnFocus: true
+                }).showToast();
+            });
+        });
+    </script>
 </body>
-
-
 </html>

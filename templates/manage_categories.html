@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Categories - MoneyTrack{% endblock %}
+
+{% block page_title %}Category Management{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    <a href="/home">Dashboard</a>
+</div>
+<div class="breadcrumb-item">
+    <i class="fas fa-tags"></i>
+    <span>Manage Categories</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Current Categories -->
+    <div class="card" data-aos="fade-up">
+        <div class="card-header">
+            <h3 class="card-title">🏷️ Your Categories</h3>
+            <p class="card-subtitle">Organize your expenses</p>
+        </div>
+        <div class="card-body">
+            {% if categories %}
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for category in categories %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; 
+                                padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 40px; height: 40px; background-color: {{ category.color }}; 
+                                        color: white; border-radius: 50%; display: flex; align-items: center; 
+                                        justify-content: center;">
+                                <i class="{{ category.icon }}"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; color: var(--text-primary);">{{ category.name|title }}</h4>
+                                <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">
+                                    Budget: GH${{ "{:,.2f}".format(category.budget_limit) }}
+                                </p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary btn-sm" onclick="editCategory({{ category.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCategory({{ category.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-tags" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                    <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem;">No categories found</h4>
+                    <p style="color: var(--text-muted);">Categories will appear here as you add expenses</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Add New Category -->
+    <div class="card" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-header">
+            <h3 class="card-title">➕ Add Category</h3>
+            <p class="card-subtitle">Create a new expense category</p>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/categories/add">
+                <div class="form-group mb-4">
+                    <label for="name" class="form-label">Category Name</label>
+                    <input type="text" class="form-control" id="name" name="name" 
+                           placeholder="e.g., Groceries, Transportation" required>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="icon" class="form-label">Icon</label>
+                    <select class="form-control form-select" id="icon" name="icon">
+                        <option value="fas fa-utensils">🍽️ Food & Dining</option>
+                        <option value="fas fa-car">🚗 Transportation</option>
+                        <option value="fas fa-film">🎬 Entertainment</option>
+                        <option value="fas fa-home">🏠 Housing</option>
+                        <option value="fas fa-shopping-bag">🛍️ Shopping</option>
+                        <option value="fas fa-heartbeat">❤️ Health</option>
+                        <option value="fas fa-graduation-cap">🎓 Education</option>
+                        <option value="fas fa-briefcase">💼 Business</option>
+                        <option value="fas fa-credit-card">💳 Bills</option>
+                        <option value="fas fa-gift">🎁 Gifts</option>
+                        <option value="fas fa-tag">🏷️ Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="color" class="form-label">Color</label>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <input type="radio" id="color1" name="color" value="#ef4444" style="display: none;">
+                        <label for="color1" style="width: 30px; height: 30px; background-color: #ef4444; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></label>
+                        
+                        <input type="radio" id="color2" name="color" value="#3b82f6" style="display: none;">
+                        <label for="color2" style="width: 30px; height: 30px; background-color: #3b82f6; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></label>
+                        
+                        <input type="radio" id="color3" name="color" value="#10b981" style="display: none;">
+                        <label for="color3" style="width: 30px; height: 30px; background-color: #10b981; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></label>
+                        
+                        <input type="radio" id="color4" name="color" value="#f59e0b" style="display: none;">
+                        <label for="color4" style="width: 30px; height: 30px; background-color: #f59e0b; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></label>
+                        
+                        <input type="radio" id="color5" name="color" value="#8b5cf6" style="display: none;" checked>
+                        <label for="color5" style="width: 30px; height: 30px; background-color: #8b5cf6; border-radius: 50%; cursor: pointer; border: 2px solid var(--primary-color);"></label>
+                        
+                        <input type="radio" id="color6" name="color" value="#ec4899" style="display: none;">
+                        <label for="color6" style="width: 30px; height: 30px; background-color: #ec4899; border-radius: 50%; cursor: pointer; border: 2px solid transparent;"></label>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="budget_limit" class="form-label">Monthly Budget Limit</label>
+                    <div class="input-group">
+                        <span class="input-group-text">GH$</span>
+                        <input type="number" class="form-control" id="budget_limit" name="budget_limit" 
+                               step="0.01" min="0" placeholder="1000.00" value="1000">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-plus"></i>
+                    Add Category
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Category Statistics -->
+<div class="card mt-6" data-aos="fade-up" data-aos-delay="400">
+    <div class="card-header">
+        <h3 class="card-title">📊 Category Insights</h3>
+        <p class="card-subtitle">Understanding your spending patterns</p>
+    </div>
+    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-chart-pie" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Track Spending</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Categories help you understand where your money goes
+                </p>
+            </div>
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--success-color), #16a34a); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-bullseye" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Set Limits</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Budget limits help you stay on track with spending goals
+                </p>
+            </div>
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--warning-color), #ea580c); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-lightbulb" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Get Insights</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Analyze patterns to make better financial decisions
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Color selection
+    document.querySelectorAll('input[name="color"]').forEach(input => {
+        input.addEventListener('change', function() {
+            document.querySelectorAll('label[for^="color"]').forEach(label => {
+                label.style.border = '2px solid transparent';
+            });
+            document.querySelector(`label[for="${this.id}"]`).style.border = '2px solid var(--primary-color)';
+        });
+    });
+
+    function editCategory(id) {
+        alert('Edit functionality coming soon!');
+    }
+
+    function deleteCategory(id) {
+        if (confirm('Are you sure you want to delete this category?')) {
+            alert('Delete functionality coming soon!');
+        }
+    }
+</script>
+{% endblock %}

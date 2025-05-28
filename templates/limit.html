@@ -1,19 +1,337 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block body %} 
+{% block title %}Spending Limits - MoneyTrack{% endblock %}
 
-<p> Currently your MONTHLY limit is GH$ {{y}} </p>
+{% block page_title %}Spending Limits{% endblock %}
 
+{% block breadcrumb %}
+<div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    <span>Dashboard</span>
+</div>
+<span class="breadcrumb-separator">/</span>
+<div class="breadcrumb-item">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>Limits</span>
+</div>
+{% endblock %}
 
-<form action="/limitnum" method="POST">
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2">
+    <!-- Current Limit Display -->
+    <div class="card mb-5" data-aos="fade-up">
+        <div class="card-header">
+            <h3 class="card-title">💰 Current Monthly Limit</h3>
+            <p class="card-subtitle">Your spending boundary for better financial control</p>
+        </div>
+        <div class="card-body">
+            {% if y %}
+            <div style="text-align: center; padding: 2rem;">
+                <div style="width: 120px; height: 120px; margin: 0 auto 2rem; 
+                            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                            border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-shield-alt" style="font-size: 3rem; color: white;"></i>
+                </div>
+                
+                <div style="font-size: 3rem; font-weight: 700; color: var(--primary-color); margin-bottom: 1rem;">
+                    GH${{ y }}
+                </div>
+                
+                <div style="font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 2rem;">
+                    Monthly spending limit
+                </div>
+                
+                <!-- Progress Bar -->
+                <div style="background-color: var(--gray-200); border-radius: 50px; height: 12px; margin-bottom: 1rem; overflow: hidden;">
+                    <div style="height: 100%; background: linear-gradient(90deg, var(--success-color), var(--warning-color), var(--danger-color)); 
+                                width: {{ (current_month_spending / y * 100) if current_month_spending and y else 0 }}%; 
+                                transition: width 0.5s ease; border-radius: 50px;"></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--text-secondary);">
+                    <span>Spent: GH${{ current_month_spending or '0.00' }}</span>
+                    <span>{{ ((current_month_spending / y * 100) if current_month_spending and y else 0)|round(1) }}% used</span>
+                </div>
+                
+                {% if current_month_spending and y and (current_month_spending / y * 100) > 80 %}
+                <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; 
+                            padding: 1rem; margin-top: 1.5rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--danger-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span style="font-weight: 600;">Warning: Approaching Limit</span>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
+                        You've used {{ ((current_month_spending / y * 100)|round(1)) }}% of your monthly budget. Consider reviewing your expenses.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 2rem;">
+                <div style="width: 120px; height: 120px; margin: 0 auto 2rem; 
+                            background-color: var(--gray-100); border-radius: 50%; 
+                            display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--gray-400);"></i>
+                </div>
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem;">No Limit Set</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    Set a monthly spending limit to better control your expenses and achieve your financial goals.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
-    <p> ENTER the MONTHLY LIMIT to avoid over EXPENSES</p> <br/>
-    <input type="number" name="number" required/> <span> 
-        <button class="btn btn-warning" type="submit">ENTER</button>
-    </span>
-    
+    <!-- Set/Update Limit Form -->
+    <div class="card" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-header">
+            <h3 class="card-title">⚙️ {{ 'Update' if y else 'Set' }} Monthly Limit</h3>
+            <p class="card-subtitle">{{ 'Adjust your current limit' if y else 'Create your first spending boundary' }}</p>
+        </div>
+        <div class="card-body">
+            <form action="/limitnum" method="POST" id="limitForm">
+                <div class="form-group">
+                    <label for="number" class="form-label">
+                        <i class="fas fa-dollar-sign"></i>
+                        Monthly Limit Amount (GH$)
+                    </label>
+                    <input type="number" 
+                           id="number" 
+                           name="number" 
+                           class="form-control" 
+                           min="1" 
+                           step="0.01" 
+                           placeholder="Enter your monthly spending limit" 
+                           value="{{ y if y else '' }}"
+                           required>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        💡 Tip: Set a realistic limit based on your income and essential expenses
+                    </div>
+                </div>
 
+                <!-- Suggested Limits -->
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.75rem;">
+                        Quick Suggestions:
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <button type="button" class="suggestion-btn" data-amount="1000">GH$1,000</button>
+                        <button type="button" class="suggestion-btn" data-amount="2500">GH$2,500</button>
+                        <button type="button" class="suggestion-btn" data-amount="5000">GH$5,000</button>
+                        <button type="button" class="suggestion-btn" data-amount="10000">GH$10,000</button>
+                    </div>
+                </div>
 
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i>
+                        {{ 'Update Limit' if y else 'Set Limit' }}
+                    </button>
+                    {% if y %}
+                    <button type="button" class="btn btn-danger" onclick="removeLimit()">
+                        <i class="fas fa-trash"></i>
+                        Remove
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-</form>
+<!-- Additional Information Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-5">
+    <!-- Benefits Card -->
+    <div class="card" data-aos="fade-up" data-aos-delay="300">
+        <div class="card-header">
+            <h3 class="card-title">✨ Benefits</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                    <span style="font-size: 0.875rem;">Better spending control</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                    <span style="font-size: 0.875rem;">Avoid overspending</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                    <span style="font-size: 0.875rem;">Achieve financial goals</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                    <span style="font-size: 0.875rem;">Build healthy habits</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Card -->
+    <div class="card" data-aos="fade-up" data-aos-delay="400">
+        <div class="card-header">
+            <h3 class="card-title">💡 Smart Tips</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                    <div style="font-weight: 500; margin-bottom: 0.25rem;">50/30/20 Rule</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                        Allocate 50% for needs, 30% for wants, 20% for savings
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight: 500; margin-bottom: 0.25rem;">Start Conservative</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                        Begin with a lower limit and adjust as needed
+                    </div>
+                </div>
+                <div>
+                    <div style="font-weight: 500; margin-bottom: 0.25rem;">Review Monthly</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                        Adjust your limits based on spending patterns
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Card -->
+    <div class="card" data-aos="fade-up" data-aos-delay="500">
+        <div class="card-header">
+            <h3 class="card-title">📊 Your Stats</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 0.875rem; color: var(--text-secondary);">This Month</span>
+                    <span style="font-weight: 600;">GH${{ current_month_spending or '0.00' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 0.875rem; color: var(--text-secondary);">Last Month</span>
+                    <span style="font-weight: 600;">GH${{ last_month_spending or '0.00' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 0.875rem; color: var(--text-secondary);">Average Daily</span>
+                    <span style="font-weight: 600;">GH${{ (current_month_spending / 30)|round(2) if current_month_spending else '0.00' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 0.875rem; color: var(--text-secondary);">Days Remaining</span>
+                    <span style="font-weight: 600;">{{ days_remaining or '30' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.suggestion-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--gray-200);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.suggestion-btn:hover {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Suggestion buttons
+    document.querySelectorAll('.suggestion-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const amount = this.dataset.amount;
+            document.getElementById('number').value = amount;
+            
+            // Visual feedback
+            this.style.backgroundColor = 'var(--success-color)';
+            this.style.borderColor = 'var(--success-color)';
+            this.style.color = 'white';
+            
+            setTimeout(() => {
+                this.style.backgroundColor = '';
+                this.style.borderColor = '';
+                this.style.color = '';
+            }, 1000);
+        });
+    });
+
+    // Form validation
+    const form = document.getElementById('limitForm');
+    const numberInput = document.getElementById('number');
+
+    numberInput.addEventListener('input', function() {
+        const value = parseFloat(this.value);
+        if (value && value > 0) {
+            this.style.borderColor = 'var(--success-color)';
+        } else {
+            this.style.borderColor = 'var(--danger-color)';
+        }
+    });
+
+    form.addEventListener('submit', function(e) {
+        const amount = parseFloat(numberInput.value);
+        
+        if (!amount || amount <= 0) {
+            e.preventDefault();
+            Toastify({
+                text: "Please enter a valid amount greater than 0",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "linear-gradient(135deg, #ef4444, #dc2626)",
+                close: true
+            }).showToast();
+            return;
+        }
+
+        if (amount < 100) {
+            if (!confirm('This limit seems quite low. Are you sure you want to proceed?')) {
+                e.preventDefault();
+                return;
+            }
+        }
+
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting...';
+        submitBtn.disabled = true;
+    });
+
+    // Remove limit function
+    function removeLimit() {
+        if (confirm('Are you sure you want to remove your spending limit? This action cannot be undone.')) {
+            // In a real implementation, you'd make an AJAX call to remove the limit
+            Toastify({
+                text: "Feature coming soon! For now, set limit to 0 to effectively remove it.",
+                duration: 4000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                close: true
+            }).showToast();
+        }
+    }
+
+    // Auto-format number input
+    numberInput.addEventListener('blur', function() {
+        const value = parseFloat(this.value);
+        if (value) {
+            this.value = value.toFixed(2);
+        }
+    });
+</script>
 {% endblock %}
