@@ -1,24 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoneyTrack - Efficient Money Tracking & Management</title>
-    <link rel="stylesheet" href="../static/css/styles.css">
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Handlee&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pacifico&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poetsen+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Satisfy&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation -->
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #10b981;
+            --accent-color: #f59e0b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-xl: 1rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --transition-normal: 250ms ease-in-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            margin-bottom: var(--space-xl);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .analytics-image {
+            width: 40px;
+            height: 40px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-xl);
+            align-items: center;
+            flex: 1;
+        }
+
+        .content-left {
+            color: white;
+        }
+
+        .new-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-md);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            margin-bottom: var(--space-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .new-label {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .new-text {
+            font-size: 0.875rem;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: var(--space-lg);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: var(--space-xl);
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: var(--space-lg);
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 1rem 2rem;
+            border-radius: var(--radius-xl);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--transition-normal);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .arrow {
+            font-size: 1.2rem;
+        }
+
+        .content-right {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard {
+            background: var(--bg-primary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-xl);
+        }
+
+        .total-amount h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .total-amount p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .period-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .period-selector select {
+            border: none;
+            background: none;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .category-pills {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .add-category {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px dashed var(--text-secondary);
+            background: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .add-category:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .pill {
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .pill.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .chart-container {
+            position: relative;
+        }
+
+        .chart {
+            position: relative;
+            height: 300px;
+        }
+
+        .tooltip {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--bg-primary);
+            padding: var(--space-lg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+        }
+
+        .tooltip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .tooltip-amount {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .tooltip-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            margin-right: 0.5rem;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            height: 200px;
+            margin-top: var(--space-xl);
+        }
+
+        .month {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .month:hover {
+            transform: translateY(-2px);
+        }
+
+        .bar {
+            width: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 0.5rem;
+            transition: all var(--transition-normal);
+        }
+
+        .month.active .bar {
+            background: linear-gradient(135deg, var(--accent-color), #ea580c);
+        }
+
+        .month span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+                gap: var(--space-xl);
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-lg);
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <div class="logo" data-aos="fade-down" data-aos-duration="800">MoneyTrack<img class="analytics-image"
-                    src="../static/images/analysis.png" alt="image"></div>
+            <div class="logo" data-aos="fade-down" data-aos-duration="800">
+                MoneyTrack
+                <img class="analytics-image" src="../static/images/analysis.png" alt="Analytics">
+            </div>
         </header>
 
         <main>
@@ -28,16 +392,18 @@
                     <span class="new-text">MoneyTrack is now available on iOS</span>
                 </div>
 
-                <h1 data-aos="fade-right" data-aos-duration="800" data-aos-delay="400">Efficient Money <br>Tracking
-                    <br>& Management
+                <h1 data-aos="fade-right" data-aos-duration="800" data-aos-delay="400">
+                    Efficient Money<br>Tracking<br>& Management
                 </h1>
 
-                <p class="subtitle" data-aos="fade-right" data-aos-duration="800" data-aos-delay="600">Take full control
-                    of your money and achieve financial stability with MoneyTrack</p>
+                <p class="subtitle" data-aos="fade-right" data-aos-duration="800" data-aos-delay="600">
+                    Take full control of your money and achieve financial stability with MoneyTrack
+                </p>
 
                 <div class="cta-buttons" data-aos="zoom-out-up" data-aos-duration="800" data-aos-delay="800">
-                    <a href="/signup" class="btn btn-primary">Start Here</a>
-                    <a href="#" class="btn btn-secondary">Learn more <span class="arrow">→</span></a>
+                    <a href="/signup" class="btn btn-primary">Sign-up</a>
+                    <a href="/login" class="btn btn-primary">Login</a>
+                    <!-- <a href="#features" class="btn btn-secondary">Learn more <span class="arrow">→</span></a> -->
                 </div>
             </div>
 
@@ -45,15 +411,15 @@
                 <div class="dashboard">
                     <div class="dashboard-header">
                         <div class="total-amount" data-aos="fade-down" data-aos-duration="800" data-aos-delay="600">
-                            <h2>$30,196</h2>
+                            <h2>GH$30,196</h2>
                             <p>Total money spent for the period</p>
                         </div>
                         <div class="period-selector" data-aos="fade-down" data-aos-duration="800" data-aos-delay="700">
                             <span>Period: </span>
                             <select id="period">
-                                <option selected>2023</option>
+                                <option selected>2024</option>
+                                <option>2023</option>
                                 <option>2022</option>
-                                <option>2021</option>
                             </select>
                         </div>
                     </div>
@@ -68,23 +434,20 @@
                         <div class="chart">
                             <div class="tooltip" id="tooltip">
                                 <div class="tooltip-header">
-                                    <span>Aug, 2023</span>
-                                    <span class="tooltip-amount">$3,800</span>
+                                    <span>Aug, 2024</span>
+                                    <span class="tooltip-amount">GH$3,800</span>
                                 </div>
                                 <div class="tooltip-item">
-                                    <span class="dot"></span>
-                                    <span>Restaurants & Food</span>
-                                    <span class="amount">$586</span>
+                                    <span><span class="dot"></span>Restaurants & Food</span>
+                                    <span class="amount">GH$586</span>
                                 </div>
                                 <div class="tooltip-item">
-                                    <span class="dot"></span>
-                                    <span>Medicine</span>
-                                    <span class="amount">$1,467</span>
+                                    <span><span class="dot"></span>Medicine</span>
+                                    <span class="amount">GH$1,467</span>
                                 </div>
                                 <div class="tooltip-item">
-                                    <span class="dot"></span>
-                                    <span>Other expenses</span>
-                                    <span class="amount">$1,747</span>
+                                    <span><span class="dot"></span>Other expenses</span>
+                                    <span class="amount">GH$1,747</span>
                                 </div>
                             </div>
 
@@ -117,8 +480,7 @@
                                     <div class="bar" style="height: 50%"></div>
                                     <span>Jul</span>
                                 </div>
-                                <div class="month active" data-aos="fade-up" data-aos-duration="400"
-                                    data-aos-delay="1250">
+                                <div class="month active" data-aos="fade-up" data-aos-duration="400" data-aos-delay="1250">
                                     <div class="bar" style="height: 80%"></div>
                                     <span>Aug</span>
                                 </div>
@@ -148,7 +510,17 @@
 
     <!-- AOS JS -->
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script src="../static/js/landing-script.js"></script>
+    <script>
+        // Initialize AOS safely
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof AOS !== 'undefined') {
+                AOS.init({
+                    duration: 600,
+                    easing: 'ease-in-out',
+                    once: true
+                });
+            }
+        });
+    </script>
 </body>
-
 </html>

@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
-
-
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -218,11 +218,15 @@ def limitnum():
 def limitn():
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT limitss FROM `limits` ORDER BY `limits`.`id` DESC LIMIT 1')
-    x= cursor.fetchone()
-    s = x[0]
-    
-    
-    return render_template("limit.html" , y= s)
+    x = cursor.fetchone()
+
+    if x is not None:
+        s = x[0]
+    else:
+        s = "No limit set"  # or 0, or whatever default makes sense
+
+    return render_template("limit.html", y=s)
+
 
 #REPORT
 
@@ -391,6 +395,17 @@ def year():
                            t_food = t_food,t_entertainment =  t_entertainment,
                            t_business = t_business,  t_rent =  t_rent, 
                            t_EMI =  t_EMI,  t_other =  t_other )
+
+
+#profile
+
+@app.route("/profile")
+def profile():
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM register WHERE id = %s', (session['id'],))  # <-- no space in %s
+    user_profile = cursor.fetchone()
+    return render_template("profile.html", user_profile=user_profile)
+
 
 #log-out
 

@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - MoneyTrack{% endblock %}
+
+{% block page_title %}Profile Settings{% endblock %}
+
+{% block breadcrumb %}
+<!-- <div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    Dashboard
+</div> -->
+<div class="breadcrumb-item">
+    <i class="fas fa-user"></i>
+    Profile
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<div class="card mb-5" data-aos="fade-up" data-aos-delay="100">
+    <div class="card-body">
+        <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+            <!-- Profile Avatar -->
+            <div style="position: relative;">
+                <div style="width: 120px; height: 120px; border-radius: 50%; 
+                            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                            display: flex; align-items: center; justify-content: center; color: white; 
+                            font-size: 3rem; font-weight: 700; box-shadow: var(--shadow-lg);">
+                    {{ session.username[0].upper() if session.username else 'U' }}
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" 
+                        style="position: absolute; bottom: 0; right: 0; border-radius: 50%; 
+                               width: 40px; height: 40px; padding: 0; display: flex; 
+                               align-items: center; justify-content: center;">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+            
+            <!-- Profile Info -->
+            <div style="flex: 1;">
+                <h2 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 2rem; font-weight: 700;">
+                    {{ session.username or 'User' }}
+                </h2>
+                <p style="margin: 0 0 1rem 0; color: var(--text-secondary); font-size: 1.125rem;">
+                    {{ session.email or 'user@example.com' }}
+                </p>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--success-color);">
+                        <i class="fas fa-check-circle"></i>
+                        <span style="font-size: 0.875rem;">Account Verified</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                        <i class="fas fa-calendar"></i>
+                        <span style="font-size: 0.875rem;">Member since {{ "2024" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Management Tabs -->
+<div class="grid grid-cols-1 lg:grid-cols-3">
+    <!-- Profile Form -->
+    <div class="lg:col-span-2">
+        <div class="card" data-aos="fade-up" data-aos-delay="200">
+            <div class="card-header">
+                <h3 class="card-title">👤 Personal Information</h3>
+                <p class="card-subtitle">Update your personal details and preferences</p>
+            </div>
+            <div class="card-body">
+                <form action="/update-profile" method="post" id="profileForm">
+                    <div class="grid grid-cols-1 md:grid-cols-2">
+                        <!-- Username -->
+                        <div class="form-group">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i>
+                                Username
+                            </label>
+                            <input type="text" 
+                                   id="username" 
+                                   name="username" 
+                                   class="form-control" 
+                                   value="{{ user_profile.username if user_profile else session.username }}"
+                                   placeholder="Enter your username"
+                                   required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i>
+                                Email Address
+                            </label>
+                            <input type="email" 
+                                   id="email" 
+                                   name="email" 
+                                   class="form-control" 
+                                   value="{{ user_profile.email if user_profile else session.email }}"
+                                   placeholder="Enter your email"
+                                   required>
+                        </div>
+
+                        <!-- Full Name -->
+                        <div class="form-group">
+                            <label for="full_name" class="form-label">
+                                <i class="fas fa-id-card"></i>
+                                Full Name
+                            </label>
+                            <input type="text" 
+                                   id="full_name" 
+                                   name="full_name" 
+                                   class="form-control" 
+                                   value="{{ user_profile.full_name if user_profile else '' }}"
+                                   placeholder="Enter your full name">
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-group">
+                            <label for="phone" class="form-label">
+                                <i class="fas fa-phone"></i>
+                                Phone Number
+                            </label>
+                            <input type="tel" 
+                                   id="phone" 
+                                   name="phone" 
+                                   class="form-control" 
+                                   value="{{ user_profile.phone if user_profile else '' }}"
+                                   placeholder="Enter your phone number">
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="form-group">
+                            <label for="currency" class="form-label">
+                                <i class="fas fa-money-bill-wave"></i>
+                                Preferred Currency
+                            </label>
+                            <select id="currency" name="currency" class="form-control form-select">
+                                <option value="GHS" {{ 'selected' if (user_profile.currency if user_profile else 'GHS') == 'GHS' }}>GHS - Ghanaian Cedi</option>
+                                <option value="USD" {{ 'selected' if (user_profile.currency if user_profile else '') == 'USD' }}>USD - US Dollar</option>
+                                <option value="EUR" {{ 'selected' if (user_profile.currency if user_profile else '') == 'EUR' }}>EUR - Euro</option>
+                                <option value="GBP" {{ 'selected' if (user_profile.currency if user_profile else '') == 'GBP' }}>GBP - British Pound</option>
+                                <option value="NGN" {{ 'selected' if (user_profile.currency if user_profile else '') == 'NGN' }}>NGN - Nigerian Naira</option>
+                            </select>
+                        </div>
+
+                        <!-- Date Format -->
+                        <div class="form-group">
+                            <label for="date_format" class="form-label">
+                                <i class="fas fa-calendar-alt"></i>
+                                Date Format
+                            </label>
+                            <select id="date_format" name="date_format" class="form-control form-select">
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="form-group">
+                        <label for="bio" class="form-label">
+                            <i class="fas fa-edit"></i>
+                            Bio
+                        </label>
+                        <textarea id="bio" 
+                                  name="bio" 
+                                  class="form-control" 
+                                  rows="4" 
+                                  placeholder="Tell us about yourself...">{{ user_profile.bio if user_profile else '' }}</textarea>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo"></i>
+                            Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Sidebar -->
+    <div class="lg:col-span-1">
+        <!-- Account Statistics -->
+        <div class="card mb-5" data-aos="fade-up" data-aos-delay="300">
+            <div class="card-header">
+                <h3 class="card-title">📊 Account Statistics</h3>
+                <p class="card-subtitle">Your MoneyTrack journey</p>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Total Expenses -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; 
+                                padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem;">Total Expenses</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">
+                                {{ dashboard_data.monthly_expenses if dashboard_data else '0' }}
+                            </div>
+                        </div>
+                        <div style="color: var(--primary-color); font-size: 1.5rem;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+
+                    <!-- Active Accounts -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; 
+                                padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem;">Active Accounts</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success-color);">
+                                {{ dashboard_data.accounts|length if dashboard_data and dashboard_data.accounts else '0' }}
+                            </div>
+                        </div>
+                        <div style="color: var(--success-color); font-size: 1.5rem;">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                    </div>
+
+                    <!-- Budget Utilization -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; 
+                                padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem;">Budget Used</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning-color);">
+                                {{ dashboard_data.budget_utilization if dashboard_data else '0' }}%
+                            </div>
+                        </div>
+                        <div style="color: var(--warning-color); font-size: 1.5rem;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" data-aos="fade-up" data-aos-delay="400">
+            <div class="card-header">
+                <h3 class="card-title">⚡ Quick Actions</h3>
+                <p class="card-subtitle">Manage your account</p>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <a href="/accounts/add" class="btn btn-outline-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Account
+                    </a>
+                    <a href="/budgets/manage" class="btn btn-outline-secondary">
+                        <i class="fas fa-chart-bar"></i>
+                        Manage Budgets
+                    </a>
+                    <a href="/savings/manage" class="btn btn-outline-success">
+                        <i class="fas fa-piggy-bank"></i>
+                        Savings Goals
+                    </a>
+                    <a href="/categories/manage" class="btn btn-outline-warning">
+                        <i class="fas fa-tags"></i>
+                        Categories
+                    </a>
+                    <hr style="margin: 0.5rem 0;">
+                    <button type="button" class="btn btn-outline-danger" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="card mt-5" data-aos="fade-up" data-aos-delay="500">
+            <div class="card-header">
+                <h3 class="card-title">🔒 Security</h3>
+                <p class="card-subtitle">Account security settings</p>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button type="button" class="btn btn-outline-primary" onclick="changePassword()">
+                        <i class="fas fa-key"></i>
+                        Change Password
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="enableTwoFactor()">
+                        <i class="fas fa-shield-alt"></i>
+                        Two-Factor Auth
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" onclick="downloadData()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form handling
+    function resetForm() {
+        if (confirm('Are you sure you want to reset all changes?')) {
+            document.getElementById('profileForm').reset();
+        }
+    }
+
+    function confirmLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/logout';
+        }
+    }
+
+    function changePassword() {
+        // Implement password change modal or redirect
+        alert('Password change functionality coming soon!');
+    }
+
+    function enableTwoFactor() {
+        // Implement 2FA setup
+        alert('Two-factor authentication setup coming soon!');
+    }
+
+    function downloadData() {
+        // Implement data export
+        alert('Data export functionality coming soon!');
+    }
+
+    // Form validation
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        if (!username || !email) {
+            e.preventDefault();
+            alert('Username and email are required fields.');
+            return false;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert('Please enter a valid email address.');
+            return false;
+        }
+        
+        return true;
+    });
+
+    // Auto-save draft (optional)
+    let saveTimeout;
+    document.querySelectorAll('#profileForm input, #profileForm textarea, #profileForm select').forEach(field => {
+        field.addEventListener('input', function() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                // Save draft to localStorage
+                const formData = new FormData(document.getElementById('profileForm'));
+                const data = Object.fromEntries(formData);
+                localStorage.setItem('profileDraft', JSON.stringify(data));
+            }, 1000);
+        });
+    });
+
+    // Load draft on page load
+    window.addEventListener('load', function() {
+        const draft = localStorage.getItem('profileDraft');
+        if (draft) {
+            const data = JSON.parse(draft);
+            Object.keys(data).forEach(key => {
+                const field = document.getElementById(key);
+                if (field && !field.value) {
+                    field.value = data[key];
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

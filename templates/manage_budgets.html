@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Budgets - MoneyTrack{% endblock %}
+
+{% block page_title %}Budget Management{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb-item">
+    <i class="fas fa-home"></i>
+    <a href="/home">Dashboard</a>
+</div>
+<div class="breadcrumb-item">
+    <i class="fas fa-chart-pie"></i>
+    <span>Manage Budgets</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Current Budgets -->
+    <div class="card" data-aos="fade-up">
+        <div class="card-header">
+            <h3 class="card-title">📊 Current Budgets</h3>
+            <p class="card-subtitle">Your active budget limits</p>
+        </div>
+        <div class="card-body">
+            {% if budgets %}
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for budget in budgets %}
+                    <div style="padding: 1.5rem; background-color: var(--bg-secondary); border-radius: var(--radius-lg); border-left: 4px solid var(--primary-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="margin: 0; color: var(--text-primary);">{{ budget.budget_type }} Budget</h4>
+                            <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">
+                                GH${{ "{:,.2f}".format(budget.amount) }}
+                            </span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                            {{ budget.category_name }} • Active
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-chart-pie" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                    <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem;">No budgets set</h4>
+                    <p style="color: var(--text-muted);">Create your first budget to start tracking spending</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Add New Budget -->
+    <div class="card" data-aos="fade-up" data-aos-delay="200">
+        <div class="card-header">
+            <h3 class="card-title">➕ Add New Budget</h3>
+            <p class="card-subtitle">Set spending limits for better control</p>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/limitnum">
+                <div class="form-group mb-4">
+                    <label for="budget_type" class="form-label">Budget Type</label>
+                    <select class="form-control form-select" id="budget_type" name="budget_type">
+                        <option value="monthly">Monthly Budget</option>
+                        <option value="weekly">Weekly Budget</option>
+                        <option value="yearly">Yearly Budget</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="number" class="form-label">Budget Amount</label>
+                    <div class="input-group">
+                        <span class="input-group-text">GH$</span>
+                        <input type="number" class="form-control" id="number" name="number" 
+                               step="0.01" min="0" placeholder="5000.00" required>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="category" class="form-label">Category (Optional)</label>
+                    <select class="form-control form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        <option value="food">Food & Dining</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="business">Business</option>
+                        <option value="rent">Rent & Housing</option>
+                        <option value="EMI">EMI & Loans</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-plus"></i>
+                    Create Budget
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Budget Tips -->
+<div class="card mt-6" data-aos="fade-up" data-aos-delay="400">
+    <div class="card-header">
+        <h3 class="card-title">💡 Budget Tips</h3>
+        <p class="card-subtitle">Make the most of your budget management</p>
+    </div>
+    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-target" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Set Realistic Goals</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Base your budget on actual spending patterns from previous months
+                </p>
+            </div>
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--success-color), #16a34a); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-chart-line" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Track Progress</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Monitor your spending regularly to stay within budget limits
+                </p>
+            </div>
+            <div style="text-align: center; padding: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--warning-color), #ea580c); 
+                            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem;">
+                    <i class="fas fa-adjust" style="font-size: 1.5rem;"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem;">Stay Flexible</h4>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    Adjust your budgets as your financial situation changes
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
