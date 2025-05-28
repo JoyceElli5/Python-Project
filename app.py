@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+import json
+from datetime import datetime, timedelta
+from flask import jsonify
 
 
 
@@ -9,11 +12,12 @@ app = Flask(__name__)
 
 
 app.secret_key = 'a'
-  
+
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '918273645'
 app.config['MYSQL_DB'] = 'expense_tracker'
+
 
 mysql = MySQL(app)
 
@@ -21,7 +25,64 @@ mysql = MySQL(app)
 #HOME--PAGE
 @app.route("/home")
 def home():
-    return render_template("homepage.html")
+    if 'loggedin' not in session:
+        return redirect('/signin')
+    
+    # Get user's payment methods
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM payment_methods WHERE user_id = %s', (session['id'],))
+    payment_methods = cursor.fetchall()
+    
+    # If no payment methods, initialize with empty list
+    if not payment_methods:
+        payment_methods = []
+    
+    # Get total balance from all payment methods
+    total_balance = sum(float(method['balance']) for method in payment_methods) if payment_methods else 0
+    
+    # Get total expenses for current month
+    cursor.execute('''
+        SELECT SUM(amount) as total_expenses 
+        FROM expenses 
+        WHERE userid = %s AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE())
+    ''', (session['id'],))
+    result = cursor.fetchone()
+    total_expenses = float(result['total_expenses']) if result['total_expenses'] else 0
+    
+    # For demo purposes, set income as balance + expenses
+    total_income = total_balance + total_expenses
+    
+    # Get budget limit
+    cursor.execute('SELECT limits FROM limits WHERE id = (SELECT MAX(id) FROM limits WHERE user_id = %s)', (session['id'],))
+    limit_result = cursor.fetchone()
+    budget_limit = float(limit_result['limitss']) if limit_result and limit_result['limitss'] else 0
+    
+    # Get recent transactions
+    cursor.execute('''
+        SELECT * FROM expenses 
+        WHERE userid = %s 
+        ORDER BY date DESC 
+        LIMIT 5
+    ''', (session['id'],))
+    recent_transactions = cursor.fetchall()
+    
+    # Calculate date range for chart
+    today = datetime.now()
+    start_date = datetime(today.year, today.month, 1).strftime('%d %b')
+    end_date = today.strftime('%d %b')
+    
+    return render_template(
+        'homepage.html',
+        payment_methods=payment_methods,
+        total_balance=total_balance,
+        total_income=total_income,
+        total_expenses=total_expenses,
+        budget_limit=budget_limit,
+        recent_transactions=recent_transactions,
+        start_date=start_date,
+        end_date=end_date,
+        get_category_icon=get_category_icon
+    )
 
 @app.route("/")
 def add():
@@ -69,36 +130,47 @@ def register():
  
         
  #LOGIN--PAGE
-    
 @app.route("/signin")
 def signin():
     return render_template("login.html")
-        
-@app.route('/login',methods =['GET', 'POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     global userid
     msg = ''
-   
-  
-    if request.method == 'POST' :
+
+    if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM register WHERE email = % s AND password = % s', (email, password ),)
-        account = cursor.fetchone()
-        print (account)
-        
-        if account:
-            session['loggedin'] = True
-            session['id'] = account[0]
-            userid=  account[0]
-            session['email'] = account[1]
-            session['username'] = account[1]
-            flash("login successful","success")
-            return redirect('/home')
-        else:
-            flash("invalid credentials","error")
-    return render_template('login.html', msg = msg)
+
+        try:
+            connection = mysql.connection
+            if connection is None:
+                flash("Database connection failed", "error")
+                return render_template('login.html', msg=msg)
+
+            cursor = connection.cursor()
+            cursor.execute('SELECT * FROM register WHERE email = %s AND password = %s', (email, password))
+            account = cursor.fetchone()
+            print(account)
+
+            if account:
+                session['loggedin'] = True
+                session['id'] = account[0]
+                userid = account[0]
+                session['email'] = account[1]
+                session['username'] = account[1]
+                flash("Login successful", "success")
+                return redirect('/home')
+            else:
+                flash("Invalid credentials", "error")
+
+        except Exception as e:
+            print("MySQL Error:", str(e))
+            flash("Something went wrong connecting to the database", "error")
+
+    return render_template('login.html', msg=msg)
+
 
 
 
@@ -124,9 +196,10 @@ def addexpense():
     amount = request.form['amount']
     paymode = request.form['paymode']
     category = request.form['category']
-    
+    account_id = request.form['account_id']
+
     cursor = mysql.connection.cursor()
-    cursor.execute('INSERT INTO expenses VALUES (NULL,  % s, % s, % s, % s, % s, % s)', (session['id'] ,date, expensename, amount, paymode, category))
+    cursor.execute('INSERT INTO expenses VALUES (NULL,  % s, % s, % s, % s, % s, % s, % s)', (session['id'] ,date, expensename, amount, paymode, category, account_id))
     mysql.connection.commit()
     print(date + " " + expensename + " " + amount + " " + paymode + " " + category)
     
@@ -171,6 +244,290 @@ def edit(id):
    
     print(row[0])
     return render_template('edit.html', expenses = row[0])
+
+
+# Helper function to get category icon
+def get_category_icon(category):
+    icons = {
+        'food': 'fa-utensils',
+        'entertainment': 'fa-film',
+        'business': 'fa-briefcase',
+        'rent': 'fa-home',
+        'EMI': 'fa-credit-card',
+        'other': 'fa-tag'
+    }
+    return icons.get(category, 'fa-tag')
+
+# Add payment method route
+@app.route("/add_payment_method", methods=['POST'])
+def add_payment_method():
+    if 'loggedin' not in session:
+        return jsonify({'success': False, 'message': 'Please login first'})
+    
+    data = request.get_json()
+    payment_type = data.get('type')       # 'card' or 'cash'
+    name = data.get('name')               # 'Visa Card', 'Wallet', etc.
+    balance = data.get('balance')         # 5000.0
+
+    if not all([payment_type, name, balance]):
+        return jsonify({'success': False, 'message': 'Missing required fields'})
+
+    try:
+        cursor = mysql.connection.cursor()
+
+        # Insert into user_accounts (main account table)
+        cursor.execute('''
+            INSERT INTO user_accounts (userid, account_name, account_type, balance)
+            VALUES (%s, %s, %s, %s)
+        ''', (session['id'], name, payment_type, float(balance)))
+
+        # Optionally insert into payment_methods (just for metadata or UI listing)
+        cursor.execute('''
+            INSERT INTO payment_methods (user_id, type, name, balance)
+            VALUES (%s, %s, %s, %s)
+        ''', (session['id'], payment_type, name, float(balance)))
+
+        mysql.connection.commit()
+        flash("Payment method added sucessfully", "success")
+    
+    except Exception as e:
+        print(e)
+        flash("Failed to add payment method", "error")
+
+
+
+
+# Get chart data route
+@app.route("/get_chart_data")
+def get_chart_data():
+    if 'loggedin' not in session:
+        return jsonify({'success': False, 'message': 'Please login first'})
+    
+    period = request.args.get('period', 'month')
+    
+    today = datetime.now()
+    labels = []
+    values = []
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    if period == 'week':
+        # Last 7 days
+        start_date = (today - timedelta(days=6)).strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+        
+        # Generate date labels for the last 7 days
+        for i in range(7):
+            date = today - timedelta(days=6-i)
+            labels.append(date.strftime('%d %b'))
+        
+        # Get expenses for each day
+        cursor.execute(''' 
+            SELECT DATE(date) as expense_date, SUM(amount) as total
+            FROM expenses
+            WHERE userid = %s AND DATE(date) BETWEEN %s AND %s
+            GROUP BY DATE(date)
+            ORDER BY DATE(date)
+        ''', (session['id'], start_date, end_date))
+        
+        results = cursor.fetchall()
+        
+        # Create a dictionary of date -> amount
+        expense_dict = {result['expense_date'].strftime('%d %b'): float(result['total']) for result in results}
+        
+        # Fill in values array based on labels
+        for label in labels:
+            values.append(expense_dict.get(label, 0))
+        
+    elif period == 'month':
+        # Current month
+        start_date = datetime(today.year, today.month, 1).strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+        
+        # Get number of days in current month
+        if today.month == 12:
+            last_day = datetime(today.year + 1, 1, 1) - timedelta(days=1)
+        else:
+            last_day = datetime(today.year, today.month + 1, 1) - timedelta(days=1)
+        
+        days_in_month = last_day.day
+        
+        # Generate week labels
+        for week in range(1, 5):
+            labels.append(f'Week {week}')
+        
+        # Get expenses for each week
+        cursor.execute('''
+            SELECT 
+                FLOOR((DAY(date) - 1) / 7) + 1 as week_number,
+                SUM(amount) as total
+            FROM expenses
+            WHERE userid = %s AND YEAR(date) = %s AND MONTH(date) = %s
+            GROUP BY week_number
+            ORDER BY week_number
+        ''', (session['id'], today.year, today.month))
+        
+        results = cursor.fetchall()
+        
+        # Create a dictionary of week -> amount
+        expense_dict = {result['week_number']: float(result['total']) for result in results}
+        
+        # Fill in values array based on labels
+        for i in range(1, 5):
+            values.append(expense_dict.get(i, 0))
+        
+    else:  # year
+        # Current year
+        start_date = datetime(today.year, 1, 1).strftime('%Y-%m-%d')
+        end_date = today.strftime('%Y-%m-%d')
+        
+        # Generate month labels
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        labels = months
+        
+        # Get expenses for each month
+        cursor.execute('''
+            SELECT 
+                MONTH(date) as month_number,
+                SUM(amount) as total
+            FROM expenses
+            WHERE userid = %s AND YEAR(date) = %s
+            GROUP BY month_number
+            ORDER BY month_number
+        ''', (session['id'], today.year))
+        
+        results = cursor.fetchall()
+        
+        # Create a dictionary of month -> amount
+        expense_dict = {result['month_number']: float(result['total']) for result in results}
+        
+        # Fill in values array based on labels
+        for i in range(1, 13):
+            values.append(expense_dict.get(i, 0))
+    
+    return jsonify({
+        'success': True,
+        'labels': labels,
+        'values': values,
+        'start_date': labels[0] if labels else '',
+        'end_date': labels[-1] if labels else ''
+    })
+
+# Get transactions by category
+@app.route("/get_transactions_by_category")
+def get_transactions_by_category():
+    if 'loggedin' not in session:
+        return jsonify({'success': False, 'message': 'Please login first'})
+    
+    category = request.args.get('category', 'all')
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    if category == 'all':
+        cursor.execute('''
+            SELECT * FROM expenses 
+            WHERE userid = %s 
+            ORDER BY date DESC 
+            LIMIT 10
+        ''', (session['id'],))
+    else:
+        cursor.execute('''
+            SELECT * FROM expenses 
+            WHERE userid = %s AND category = %s
+            ORDER BY date DESC 
+            LIMIT 10
+        ''', (session['id'], category))
+    
+    transactions = cursor.fetchall()
+    
+    # Format dates for display
+    for transaction in transactions:
+        if isinstance(transaction['date'], datetime):
+            transaction['date'] = transaction['date'].strftime('%d %b, %Y')
+    
+    return jsonify({
+        'success': True,
+        'transactions': transactions
+    })
+
+
+
+
+
+
+
+@app.route("/add_account", methods=['GET', 'POST'])
+def add_account():
+    if request.method == 'POST':
+        account_name = request.form['account_name']
+        account_type = request.form['account_type']  # 'card' or 'cash'
+        initial_balance = float(request.form['initial_balance'])
+        
+        cursor = mysql.connection.cursor()
+        cursor.execute('''INSERT INTO user_accounts (userid, account_name, account_type, balance) 
+                         VALUES (%s, %s, %s, %s)''', 
+                      (session['id'], account_name, account_type, initial_balance))
+        mysql.connection.commit()
+        
+        flash('Account added successfully!', 'success')
+        return redirect('/dashboard')
+    
+    return render_template('add_account.html')
+
+# Update account balance
+@app.route("/update_balance/<int:account_id>", methods=['POST'])
+def update_balance(account_id):
+    new_balance = float(request.form['new_balance'])
+    
+    cursor = mysql.connection.cursor()
+    cursor.execute('UPDATE user_accounts SET balance = %s WHERE id = %s AND userid = %s', 
+                  (new_balance, account_id, session['id']))
+    mysql.connection.commit()
+    
+    flash('Balance updated successfully!', 'success')
+    return redirect('/dashboard')
+
+# Delete account
+@app.route("/delete_account/<int:account_id>", methods=['POST'])
+def delete_account(account_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM user_accounts WHERE id = %s AND userid = %s', 
+                  (account_id, session['id']))
+    mysql.connection.commit()
+    
+    flash('Account deleted successfully!', 'success')
+    return redirect('/dashboard')
+
+# API endpoint for chart data
+@app.route("/api/expense_data")
+def expense_data():
+    if 'loggedin' not in session:
+        return {'error': 'Not logged in'}, 401
+    
+    cursor = mysql.connection.cursor()
+    
+    # Get last 7 days data
+    cursor.execute('''SELECT DATE(date) as expense_date, SUM(amount) as daily_total 
+                     FROM expenses WHERE userid = %s 
+                     AND date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                     GROUP BY DATE(date) ORDER BY DATE(date)''', (session['id'],))
+    
+    data = cursor.fetchall()
+    
+    # Format data for Chart.js
+    labels = [str(row[0]) for row in data]
+    amounts = [float(row[1]) for row in data]
+    
+    return {
+        'labels': labels,
+        'data': amounts
+    }
+
+
+
+
+
+
 
 
 
