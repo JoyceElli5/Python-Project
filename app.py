@@ -15,7 +15,7 @@ app.secret_key = 'a'
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '918273645'
+app.config['MYSQL_PASSWORD'] = 'plantain2020'
 app.config['MYSQL_DB'] = 'expense_tracker'
 
 
