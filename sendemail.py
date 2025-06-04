@@ -1,29 +1,36 @@
-import smtplib
-import sendgrid
 import os
-from sendgrid.helpers.mail import Mail, Email, To, Content
-SUBJECT = "expense tracker"
-s = smtplib.SMTP('smtp.gmail.com', 587)
+import smtplib
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
-def sendmail(TEXT,email):
-    print("sorry we cant process your candidature")
-    s = smtplib.SMTP('smtp.gmail.com', 587)
-    s.starttls()
-    s.login("il.shridhartp24@gmail.com", "oms@1Ram")
-    message  = 'Subject: {}\n\n{}'.format(SUBJECT, TEXT)
-    s.sendmail("il.shridhartp24@gmail.com", email, message)
-    s.quit()
-def sendgridmail(user,TEXT):
-  
-    from_email = Email("shridhartp24@gmail.com") 
-    to_email = To(user) 
-    subject = "Sending with SendGrid is Fun"
-    content = Content("text/plain",TEXT)
-    mail = Mail(from_email, to_email, subject, content)
+SUBJECT = "Expense Tracker Notification"
 
-    # Get a JSON-ready representation of the Mail object
-    mail_json = mail.get()
-    # Send an HTTP POST request to /mail/send
-    response = sg.client.mail.send.post(request_body=mail_json)
-    print(response.status_code)
-    print(response.headers)
+# Load credentials from environment
+EMAIL_USER = os.getenv('EMAIL_USER')
+EMAIL_PASS = os.getenv('EMAIL_PASS')
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
+def sendmail(text, recipient_email):
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587) as s:
+            s.starttls()
+            s.login(EMAIL_USER, EMAIL_PASS)
+            message = f"Subject: {SUBJECT}\n\n{text}"
+            s.sendmail(EMAIL_USER, recipient_email, message)
+        print(f"Email sent to {recipient_email} via SMTP")
+    except Exception as e:
+        print(f"SMTP email error: {e}")
+
+def sendgridmail(text, recipient_email):
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        message = Mail(
+            from_email=EMAIL_USER,
+            to_emails=recipient_email,
+            subject=SUBJECT,
+            plain_text_content=text
+        )
+        response = sg.send(message)
+        print(f"SendGrid email sent, status code: {response.status_code}")
+    except Exception as e:
+        print(f"SendGrid email error: {e}")

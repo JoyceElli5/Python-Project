@@ -1,6 +1,12 @@
+# Existing dependencies
 Flask
 requests
 jsonify
 mysql-connector-python
 flask_mysqldb
 sendgrid
+
+# New security dependencies
+Werkzeug>=2.3.7
+bleach>=6.0.0
+python-dotenv>=1.0.0

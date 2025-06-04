@@ -1,8 +1,15 @@
+@font-face {
+  font-family: "Euclid-Circular-B";
+  src: url("../font/Euclid-Circular-B.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Raleway", sans-serif;
+  font-family: "Euclid-Circular-B", sans-serif;
 }
 
 body {

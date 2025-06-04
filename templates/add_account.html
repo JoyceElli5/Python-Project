@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+
+{% block title %}Add Account - MyBudget{% endblock %}
+
+{% block extra_css %}
+<style>
+    .account-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .account-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px 0;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+    }
+
+    .page-title i {
+        color: rgba(59, 130, 246, 0.8);
+        font-size: 24px;
+    }
+
+    .account-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: start;
+    }
+
+    .account-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        border: 1px solid #eee;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f5f5f7;
+    }
+
+    .card-header h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    .account-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .account-form label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .account-form .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #333;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+        background-color: #fafafa;
+    }
+
+    .account-form .form-control:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.8);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: white;
+    }
+
+    .account-form .form-control::placeholder {
+        color: #999;
+    }
+
+    .amount-input {
+        position: relative;
+    }
+
+    .currency-symbol {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1;
+    }
+
+    .amount-input .form-control {
+        padding-left: 45px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.6));
+        color: white;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .account-types {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .account-type-option {
+        position: relative;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .account-type-option:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+        background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .account-type-option.selected {
+        border-color: rgba(59, 130, 246, 0.8);
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    .account-type-option input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .account-type-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .account-type-label {
+        font-weight: 500;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .account-preview {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.6));
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .account-preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .account-preview-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .account-preview-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .account-preview-balance {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .account-preview-name {
+        font-size: 16px;
+        opacity: 0.9;
+    }
+
+    .account-preview-type {
+        position: absolute;
+        bottom: 25px;
+        right: 25px;
+        font-size: 12px;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .account-preview-circles {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .preview-circle {
+        width: 8px;
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+    }
+
+    .account-tips {
+        background-color: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        border: 1px solid #eee;
+    }
+
+    .account-tips h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tips-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .tips-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: #333;
+        padding: 0 0 15px 0;
+        border-bottom: 1px solid #f5f5f7;
+    }
+
+    .tips-list li:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .tips-list li i {
+        color: rgba(59, 130, 246, 0.8);
+        font-size: 16px;
+        margin-top: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .account-main {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .account-types {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="account-container">
+    <!-- Flash Messages Handler -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
+    {% endfor %}
+    {% endwith %}
+
+    <div class="account-header" data-aos="fade-down">
+        <h1 class="page-title">
+            <i class="fas fa-credit-card"></i>
+            Add New Account
+        </h1>
+        <a href="/home" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="account-main">
+        <!-- Left Side - Form -->
+        <div class="form-section">
+            <div class="account-card" data-aos="fade-right">
+                <div class="card-header">
+                    <h2>Account Details</h2>
+                </div>
+
+                <form action="/add_account" method="POST" class="account-form" id="account-form">
+                    <div class="form-group">
+                        <label for="account_name">
+                            <i class="fas fa-tag"></i> Account Name
+                        </label>
+                        <input class="form-control" type="text" name="account_name" id="account_name"
+                            placeholder="e.g. My Savings, Wallet, Credit Card" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-wallet"></i> Account Type
+                        </label>
+                        <div class="account-types">
+                            <label class="account-type-option" for="type-cash">
+                                <input type="radio" name="account_type" id="type-cash" value="cash" checked>
+                                <div class="account-type-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="account-type-label">Cash</div>
+                            </label>
+
+                            <label class="account-type-option" for="type-card">
+                                <input type="radio" name="account_type" id="type-card" value="card">
+                                <div class="account-type-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="account-type-label">Card</div>
+                            </label>
+
+                            <label class="account-type-option" for="type-bank">
+                                <input type="radio" name="account_type" id="type-bank" value="onlinebanking">
+                                <div class="account-type-icon">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div class="account-type-label">Bank Account</div>
+                            </label>
+
+                            <label class="account-type-option" for="type-mobile">
+                                <input type="radio" name="account_type" id="type-mobile" value="epayment">
+                                <div class="account-type-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="account-type-label">Mobile Money</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="initial_balance">
+                            <i class="fas fa-dollar-sign"></i> Initial Balance
+                        </label>
+                        <div class="amount-input">
+                            <span class="currency-symbol">GH₵</span>
+                            <input class="form-control" type="number" min="0" step="0.01" name="initial_balance"
+                                id="initial_balance" placeholder="0.00" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submit-btn">
+                        <i class="fas fa-plus"></i> Add Account
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side - Preview & Tips -->
+        <div class="content-section">
+            <div class="illustration-container" data-aos="fade-left">
+                <!-- Account Preview -->
+                <div class="account-preview">
+                    <div class="account-preview-circles">
+                        <div class="preview-circle"></div>
+                        <div class="preview-circle"></div>
+                    </div>
+                    <div class="account-preview-header">
+                        <div class="account-preview-title">Preview</div>
+                        <div class="account-preview-icon">
+                            <i class="fas fa-money-bill-wave" id="preview-icon"></i>
+                        </div>
+                    </div>
+                    <div class="account-preview-balance" id="preview-balance">GH₵0.00</div>
+                    <div class="account-preview-name" id="preview-name">New Account</div>
+                    <div class="account-preview-type" id="preview-type">Cash</div>
+                </div>
+
+                <!-- Tips Card -->
+                <div class="account-tips">
+                    <h3><i class="fas fa-lightbulb"></i> Account Tips</h3>
+                    <ul class="tips-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Create separate accounts</strong> for different purposes like daily expenses,
+                                savings, and investments.
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Use descriptive names</strong> that help you easily identify each account (e.g.,
+                                "Emergency Fund" instead of just "Savings").
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Regularly reconcile</strong> your account balances with your actual bank
+                                statements or cash on hand.
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Set up automatic transfers</strong> between accounts to build savings without
+                                thinking about it.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const accountForm = document.getElementById('account-form');
+        const accountName = document.getElementById('account_name');
+        const initialBalance = document.getElementById('initial_balance');
+        const accountTypes = document.querySelectorAll('input[name="account_type"]');
+
+        // Preview elements
+        const previewName = document.getElementById('preview-name');
+        const previewBalance = document.getElementById('preview-balance');
+        const previewType = document.getElementById('preview-type');
+        const previewIcon = document.getElementById('preview-icon');
+
+        // Update preview when account name changes
+        accountName.addEventListener('input', function () {
+            previewName.textContent = this.value || 'New Account';
+        });
+
+        // Update preview when initial balance changes
+        initialBalance.addEventListener('input', function () {
+            const value = parseFloat(this.value) || 0;
+            previewBalance.textContent = `GH₵${value.toFixed(2)}`;
+        });
+
+        // Update preview when account type changes
+        accountTypes.forEach(type => {
+            type.addEventListener('change', function () {
+                // Update selected class for styling
+                document.querySelectorAll('.account-type-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                this.closest('.account-type-option').classList.add('selected');
+
+                // Update preview
+                switch (this.value) {
+                    case 'cash':
+                        previewType.textContent = 'Cash';
+                        previewIcon.className = 'fas fa-money-bill-wave';
+                        break;
+                    case 'card':
+                        previewType.textContent = 'Card';
+                        previewIcon.className = 'fas fa-credit-card';
+                        break;
+                    case 'onlinebanking':
+                        previewType.textContent = 'Bank Account';
+                        previewIcon.className = 'fas fa-university';
+                        break;
+                    case 'epayment':
+                        previewType.textContent = 'Mobile Money';
+                        previewIcon.className = 'fas fa-mobile-alt';
+                        break;
+                }
+            });
+        });
+
+        // Set initial selected state
+        document.querySelector('.account-type-option').classList.add('selected');
+
+        // Format balance on blur
+        initialBalance.addEventListener('blur', function () {
+            if (this.value) {
+                this.value = parseFloat(this.value).toFixed(2);
+            }
+        });
+
+        // Form submission
+        accountForm.addEventListener('submit', function (e) {
+            // Basic validation
+            if (!accountName.value.trim()) {
+                e.preventDefault();
+                alert('Please enter an account name');
+                accountName.focus();
+                return;
+            }
+
+            if (!initialBalance.value || isNaN(parseFloat(initialBalance.value))) {
+                e.preventDefault();
+                alert('Please enter a valid initial balance');
+                initialBalance.focus();
+                return;
+            }
+        });
+
+        // Handle flash messages
+        document.querySelectorAll('.flash-data').forEach(el => {
+            const message = el.dataset.message;
+            const category = el.dataset.category;
+
+            if (message) {
+                alert(`${category.toUpperCase()}: ${message}`);
+            }
+        });
+    });
+</script>
+{% endblock %}

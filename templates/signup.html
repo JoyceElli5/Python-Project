@@ -16,17 +16,17 @@
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
-<!-- Toastify JS -->
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body>
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
-  {% for category, message in messages %}
-    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
-  {% endfor %}
-{% endwith %}
+        {% for category, message in messages %}
+        <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
+        {% endfor %}
+        {% endwith %}
         <header>
             <div class="logo" data-aos="fade-down" data-aos-duration="800">MoneyTrack<img class="analytics-image"
                     src="../static/images/analysis.png" alt="image"></div>
@@ -54,6 +54,8 @@
                             <img height="20px" src="../static/images/password.png" alt="Password Icon" />
                             <input placeholder="Create Password" type="password" name="password" id="password"
                                 required />
+                            <span onclick="togglePassword()"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">👁️</span>
                         </div>
 
                         <!-- <div class="input-group" data-aos="fade-up" data-aos-delay="600" data-aos-duration="800">
@@ -111,22 +113,28 @@
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script src="../static/js/signup.js"></script>
     <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.flash-data').forEach(el => {
-      const message = el.dataset.message;
-      const category = el.dataset.category;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.flash-data').forEach(el => {
+                const message = el.dataset.message;
+                const category = el.dataset.category;
 
-      Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: category === "success" ? "green" : "red",
-        close: true
-      }).showToast();
-    });
-  });
-</script>
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: category === "success" ? "green" : "red",
+                    close: true
+                }).showToast();
+            });
+        });
+
+        function togglePassword() {
+            const pwd = document.getElementById("password");
+            pwd.type = pwd.type === "password" ? "text" : "password";
+        }
+    </script>
+
 </body>
 
 

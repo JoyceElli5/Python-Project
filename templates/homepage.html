@@ -1,61 +1,411 @@
-{% block content %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <link rel="stylesheet" href="../static/css/home.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+{% block title %}Dashboard - MyBudget{% endblock %}
 
-    <!-- Toastify JS -->
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-</head>
+{% block extra_css %}
+<!-- <link rel="stylesheet" href="../static/css/home.css"> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
 
-<body>
+    .content-left,
+    .content-middle,
+    .content-right {
+        margin-bottom: 30px;
+    }
 
-</body>
+    .cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 
-</html>
+    }
 
+    .card {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid rgba(59, 130, 246, 0.1);
+    }
 
+    .card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .card-amount {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .card-content i {
+        font-size: 24px;
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .balance-card {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.6));
+        border-radius: 12px;
+        padding: 20px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .balance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card-circles {
+        display: flex;
+        gap: 5px;
+    }
+
+    .circle {
+        width: 8px;
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+    }
+
+    .balance-amount {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .card-number {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .add-payment-method {
+        background-color: white;
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px dashed #ccc;
+        transition: all 0.3s ease;
+    }
+
+    .add-payment-method:hover {
+        border-color: rgba(59, 130, 246, 0.8);
+        background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .dashboard {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .period-selector select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        font-size: 14px;
+    }
+
+    .budget-highlight {
+        background-color: rgba(59, 130, 246, 0.1);
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .chart-container {
+        height: 200px;
+        margin-bottom: 15px;
+    }
+
+    .chart-dates {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #666;
+    }
+
+    .transactions-container {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .transactions-container h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .transaction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f5f5f7;
+    }
+
+    .transaction-item:last-child {
+        border-bottom: none;
+    }
+
+    .transaction-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .transaction-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(59, 130, 246, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .transaction-name {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 2px;
+    }
+
+    .transaction-date {
+        font-size: 12px;
+        color: #666;
+    }
+
+    .transaction-amount {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .budget-categories {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .budget-categories h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+        align-self: flex-start;
+    }
+
+    .progress-container {
+        margin-bottom: 30px;
+    }
+
+    .circular-progress {
+        position: relative;
+        width: 120px;
+        height: 120px;
+    }
+
+    .circular-progress svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    .progress-bg {
+        fill: none;
+        stroke: #f3f4f6;
+        stroke-width: 8;
+    }
+
+    .progress-bar {
+        fill: none;
+        stroke: rgba(59, 130, 246, 0.8);
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .progress-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .progress-percentage {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .progress-percentage span {
+        font-size: 12px;
+    }
+
+    .progress-label {
+        font-size: 10px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .category-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        background-color: #f5f5f7;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .pill.active,
+    .pill:hover {
+        background-color: rgba(59, 130, 246, 0.8);
+        color: white;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        width: 400px;
+        max-width: 90%;
+    }
+
+    .modal h2 {
+        margin-bottom: 20px;
+        font-size: 20px;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    /* Responsive Design */
+    @media (min-width: 768px) {
+        .dashboard-container main {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .cards-container {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+        }
+
+        .category-pills {
+            justify-content: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
 <div class="dashboard-container">
-    <header>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-        <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
-        {% endfor %}
-        {% endwith %}
-        <nav>
-            <div class="logo">MyBudget</div>
-            <ul class="navbar-nav">
-                <li class="nav-item active"><a href="#" class="nav-link">Dashboard</a></li>
-                <li class="nav-item"><a href="/display" class="nav-link">Transactions</a></li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">Reports</a>
-                    <div class="dropdown-menu">
-                        <a href="/today" class="dropdown-item">Today</a>
-                        <a href="/month" class="dropdown-item">This Month</a>
-                        <a href="/year" class="dropdown-item">This Year</a>
-                    </div>
-                </li>
-                <li class="nav-item"><a href="/limit" class="nav-link">Budget</a></li>
-            </ul>
-            <div class="user-profile">
-                <div class="notification">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="profile">
-                    <span>{{ session.username }}</span>
-                    <div class="avatar">{{ session.username[0] }}</div>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <!-- Flash Messages Handler -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
+    {% endfor %}
+    {% endwith %}
 
     <main>
         <div class="content-left">
@@ -89,7 +439,7 @@
                 </div>
             </div>
 
-            <div id="payment-methods-container">
+            <!-- <div id="payment-methods-container">
                 {% for payment in payment_methods %}
                 <div class="balance-card" style="margin-bottom: 15px;">
                     <div class="balance-header">
@@ -104,15 +454,43 @@
                 </div>
                 {% endfor %}
 
-                <div class="add-payment-method" id="add-payment-btn"
-                    style="background-color: white; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px dashed #ccc;">
+                <div class="add-payment-method" id="add-payment-btn">
                     <div style="display: flex; flex-direction: column; align-items: center;">
                         <i class="fas fa-plus"
                             style="font-size: 24px; color: rgba(59, 130, 246, 0.8); margin-bottom: 10px;"></i>
                         <span style="font-weight: 500;">Add Payment Method</span>
                     </div>
                 </div>
+            </div> -->
+
+            <div id="payment-methods-container">
+                {% for account in user_accounts %}
+                <div class="balance-card" style="margin-bottom: 15px;">
+                    <div class="balance-header">
+                        <div class="card-circles">
+                            <div class="circle"></div>
+                            <div class="circle"></div>
+                        </div>
+                        <i
+                            class="fas {{ 'fa-credit-card' if account.account_type == 'card' else 'fa-money-bill-wave' }}"></i>
+                    </div>
+                    <div class="balance-amount">GH${{ "%.2f"|format(account.balance) }}</div>
+                    <div class="card-number">{{ account.account_name }}</div>
+                    <div class="card-number" style="font-size: 0.9rem; color: gray;">{{ account.account_type|capitalize
+                        }}</div>
+                </div>
+                {% endfor %}
+
+                <div class="add-payment-method">
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <i class="fas fa-plus"
+                            style="font-size: 24px; color: rgba(59, 130, 246, 0.8); margin-bottom: 10px;"></i>
+                        <a href="/add_account" style="font-weight: 500; text-decoration: none;">Add Account</a>
+                    </div>
+                </div>
             </div>
+
+
         </div>
 
         <div class="content-middle">
@@ -162,7 +540,7 @@
             </div>
 
             <div class="budget-categories">
-                <h2 style="align-self: flex-start; margin-bottom: 20px;">Budget Categories</h2>
+                <h2>Budget Categories</h2>
                 <div class="progress-container">
                     <div class="circular-progress">
                         <svg viewBox="0 0 100 100">
@@ -174,8 +552,7 @@
                         </svg>
                         <div class="progress-content">
                             <div class="progress-percentage">{{ (total_expenses / budget_limit * 100)|int if
-                                budget_limit > 0 else 0
-                                }}<span>%</span></div>
+                                budget_limit > 0 else 0 }}<span>%</span></div>
                             <div class="progress-label">of monthly budget used</div>
                         </div>
                     </div>
@@ -204,42 +581,52 @@
 </div>
 
 <!-- Add Payment Method Modal -->
-<div id="payment-modal"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div style="background-color: white; padding: 30px; border-radius: 12px; width: 400px; max-width: 90%;">
-        <h2 style="margin-bottom: 20px; font-size: 20px;">Add Payment Method</h2>
+<div id="payment-modal" class="modal">
+    <div class="modal-content">
+        <h2>Add Payment Accounts</h2>
         <form id="payment-form">
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Type</label>
-                <select id="payment-type"
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+            <div class="form-group">
+                <label>Type</label>
+                <select id="payment-type">
                     <option value="card">Card</option>
                     <option value="cash">Cash</option>
                 </select>
             </div>
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Name</label>
-                <input type="text" id="payment-name" placeholder="e.g. HDFC Credit Card"
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="payment-name" placeholder="e.g. HDFC Credit Card">
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Balance</label>
-                <input type="number" id="payment-balance" placeholder="Enter amount"
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+            <div class="form-group">
+                <label>Balance</label>
+                <input type="number" id="payment-balance" placeholder="Enter amount">
             </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" id="cancel-payment"
-                    style="padding: 10px 20px; border: none; border-radius: 8px; background-color: #f5f5f7; cursor: pointer;">Cancel</button>
-                <button type="submit"
-                    style="padding: 10px 20px; border: none; border-radius: 8px; background-color: rgba(59, 130, 246, 0.8); color: white; cursor: pointer;">Add</button>
+            <div class="modal-buttons">
+                <button type="button" id="cancel-payment" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add</button>
             </div>
         </form>
     </div>
 </div>
-<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="../static/js/home.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+    // Toast notification function
+    function showToast(message, type) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: type === "success" ? "green" : "red",
+            close: true
+        }).showToast();
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // Initialize chart
         const ctx = document.getElementById('expense-chart').getContext('2d');
@@ -431,6 +818,7 @@
             return icons[category] || 'fa-tag';
         }
 
+        // Handle flash messages
         document.querySelectorAll('.flash-data').forEach(el => {
             const message = el.dataset.message;
             const category = el.dataset.category;
@@ -446,5 +834,4 @@
         });
     });
 </script>
-
 {% endblock %}

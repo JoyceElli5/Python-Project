@@ -15,11 +15,11 @@
 	<!-- Font Awesome -->
 	<script src="https://kit.fontawesome.com/a81368914c.js"></script>
 	<!-- AOS CSS -->
-	<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" /> 
+	<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
-<!-- Toastify JS -->
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+	<!-- Toastify JS -->
+	<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body>
@@ -36,10 +36,10 @@
 						<div class="form-header" data-aos="fade-down" data-aos-delay="200" data-aos-duration="800">
 							<h2>Login to Your Account</h2>
 							{% with messages = get_flashed_messages(with_categories=true) %}
-  {% for category, message in messages %}
-    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
-  {% endfor %}
-{% endwith %}
+							{% for category, message in messages %}
+							<div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
+							{% endfor %}
+							{% endwith %}
 						</div>
 
 						<div class="input-group" data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
@@ -49,7 +49,9 @@
 
 						<div class="input-group" data-aos="fade-up" data-aos-delay="400" data-aos-duration="800">
 							<img height="20px" src="../static/images/password.png" alt="Password Icon" />
-							<input placeholder="Password" type="password" name="password" required />
+							<input placeholder="Password" id="password" type="password" name="password" required />
+							<span onclick="togglePassword()"
+								style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">👁️</span>
 						</div>
 
 						<div class="forgot-password" data-aos="fade-up" data-aos-delay="500" data-aos-duration="800">
@@ -132,24 +134,28 @@
 			input.addEventListener("focus", addcl);
 			input.addEventListener("blur", remcl);
 		});
-	</script>
-	<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.flash-data').forEach(el => {
-      const message = el.dataset.message;
-      const category = el.dataset.category;
 
-      Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: category === "success" ? "green" : "red",
-        close: true
-      }).showToast();
-    });
-  });
-</script>
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('.flash-data').forEach(el => {
+				const message = el.dataset.message;
+				const category = el.dataset.category;
+
+				Toastify({
+					text: message,
+					duration: 3000,
+					gravity: "top",
+					position: "right",
+					backgroundColor: category === "success" ? "green" : "red",
+					close: true
+				}).showToast();
+			});
+		});
+
+		function togglePassword() {
+			const pwd = document.getElementById("password");
+			pwd.type = pwd.type === "password" ? "text" : "password";
+		}
+	</script>
 
 </body>
 

@@ -1,899 +1,859 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Expense | MoneyTrack</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Raleway", sans-serif;
+{% block title %}Add Expense - MyBudget{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<style>
+    .add-expense-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .add-expense-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: start;
+    }
+
+    /* Form Card Styles */
+    .add-expense-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        border: 1px solid #eee;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f5f5f7;
+    }
+
+    .card-header h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    .new-badge {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+        color: rgba(59, 130, 246, 0.8);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .new-label {
+        font-weight: 600;
+    }
+
+    /* Form Styles */
+    .expense-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .expense-form label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .expense-form .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #333;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+        background-color: #fafafa;
+    }
+
+    .expense-form .form-control:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.8);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: white;
+    }
+
+    .expense-form .form-control::placeholder {
+        color: #999;
+    }
+
+    /* Amount Input with Currency Symbol */
+    .amount-input {
+        position: relative;
+    }
+
+    .currency-symbol {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1;
+    }
+
+    .amount-input .form-control {
+        padding-left: 45px;
+    }
+
+    /* Form Row for Side-by-Side Fields */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.6));
+        color: white;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    /* Right Side Content */
+    .illustration-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .expense-illustration {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .tips-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        border: 1px solid #eee;
+    }
+
+    .tips-card h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .tips-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .tips-list li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #333;
+        padding: 8px 0;
+    }
+
+    .tips-list li i {
+        color: rgba(59, 130, 246, 0.8);
+        font-size: 16px;
+        width: 16px;
+        text-align: center;
+    }
+
+    /* Quick Stats Card */
+    .quick-stats {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .quick-stats h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: rgba(59, 130, 246, 0.8);
+        margin-bottom: 15px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #666;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .add-expense-main {
+            grid-template-columns: 1fr;
+            gap: 30px;
         }
 
-        body {
-            background-color: #f5f5f7;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* height: 100vh; */
-        }
-
-        .dashboard-container {
-            width: 1200px;
-            padding: 15px;
-            background-color: #f5f5f7;
-            /* border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); */
-            overflow: hidden;
-            position: relative;
-        }
-
-        header {
-            padding: 5px 0;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .navbar-nav {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-item {
-            margin: 0 10px;
-            position: relative;
-        }
-
-        .nav-link {
-            color: #333;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 5px 10px;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover,
-        .nav-item.active .nav-link {
-            color: rgba(59, 130, 246, 0.8);
-        }
-
-        .dropdown-toggle::after {
-            content: "▼";
-            font-size: 8px;
-            margin-left: 5px;
-            vertical-align: middle;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            padding: 8px 0;
-            min-width: 120px;
-            display: none;
-            z-index: 10;
-        }
-
-        .dropdown:hover .dropdown-menu {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: block;
-            padding: 8px 16px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f5f5f7;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-        }
-
-        .notification {
-            margin-right: 20px;
-            position: relative;
-        }
-
-        .notification i {
-            font-size: 18px;
-            color: #666;
-        }
-
-        .notification::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 6px;
-            height: 6px;
-            background-color: rgba(59, 130, 246, 0.8);
-            border-radius: 50%;
-        }
-
-        .profile {
-            display: flex;
-            align-items: center;
-        }
-
-        .profile span {
-            margin-right: 10px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .avatar {
-            width: 32px;
-            height: 32px;
-            background-color: rgba(59, 130, 246, 0.8);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        main {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 20px 0;
-            gap: 20px;
-            height: calc(100% - 60px);
-            position: relative;
-        }
-
-        .content-left {
-            flex: 1;
-            min-width: 300px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .content-middle {
-            flex: 1.2;
-            min-width: 350px;
-        }
-
-        .content-right {
-            flex: 1;
-            min-width: 300px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .cards-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .card {
-            background-color: white;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 15px;
-        }
-
-        .card-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-title {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .card-amount {
-            font-weight: 600;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg,
-                    rgba(59, 130, 246, 0.8),
-                    rgba(59, 130, 246, 0.5));
-            color: white;
-            border-radius: 12px;
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .balance-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .card-circles {
-            display: flex;
-        }
-
-        .circle {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.2);
-            margin-left: -8px;
-        }
-
-        .circle:first-child {
-            margin-left: 0;
-        }
-
-        .balance-amount {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .card-number {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: auto;
-        }
-
-        .dashboard {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            height: 100%;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .period-selector {
-            background-color: #f5f5f7;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-
-        .period-selector select {
-            background: transparent;
-            border: none;
-            color: #333;
-            font-weight: 500;
-            cursor: pointer;
-            appearance: none;
-            padding-right: 15px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"><path d="M0,0 L6,6 L12,0 Z" fill="%23333"></path></svg>');
-            background-repeat: no-repeat;
-            background-position: right center;
-        }
-
-        .period-selector select:focus {
-            outline: none;
-        }
-
-        .budget-highlight {
-            display: inline-block;
-            background-color: #f5f5f7;
-            color: rgba(59, 130, 246, 0.8);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .chart-container {
-            height: 200px;
-            position: relative;
-        }
-
-        .chart-dates {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .transactions-container {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-        }
-
-        .transactions-container h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .transactions {
-            display: flex;
-            flex-direction: column;
+        .form-row {
+            grid-template-columns: 1fr;
             gap: 15px;
         }
 
-        .transaction-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .transaction-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .transaction-icon {
-            width: 40px;
-            height: 40px;
-            background-color: #f5f5f7;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 16px;
-        }
-
-        .transaction-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .transaction-name {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .transaction-date {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .transaction-amount {
-            font-weight: 600;
-            color: rgba(59, 130, 246, 0.8);
-        }
-
-        .budget-categories {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .progress-container {
-            margin-bottom: 20px;
-        }
-
-        .circular-progress {
-            width: 120px;
-            height: 120px;
-            position: relative;
-        }
-
-        .circular-progress svg {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
-
-        .progress-bg {
-            fill: none;
-            stroke: #f5f5f7;
-            stroke-width: 10;
-        }
-
-        .progress-bar {
-            fill: none;
-            stroke: rgba(59, 130, 246, 0.8);
-            stroke-width: 10;
-            stroke-linecap: round;
-            transform-origin: center;
-            transform: rotate(-90deg);
-        }
-
-        .progress-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .progress-percentage {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .progress-percentage span {
-            font-size: 12px;
-        }
-
-        .progress-label {
-            font-size: 10px;
-            color: #666;
-            max-width: 80px;
-            line-height: 1.2;
-        }
-
-        .category-pills {
-            display: flex;
-            gap: 10px;
-        }
-
-        .pill {
-            background-color: #f5f5f7;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .pill.active {
-            background-color: #111;
-            color: white;
-        }
-
-        .pill i {
-            font-size: 12px;
-        }
-
-        .promo-banner {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 100%;
-            background-color: #111;
-            color: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            border-radius: 0 20px 20px 0;
-            overflow: hidden;
-        }
-
-        .promo-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .promo-content h3 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .promo-content p {
-            opacity: 0.8;
-            font-size: 14px;
-        }
-
-        .promo-footer {
-            margin-top: auto;
-        }
-
-        .promo-decoration {
-            position: absolute;
-            bottom: -50px;
-            right: -50px;
-            width: 300px;
-            height: 300px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path d="M42.7,-62.9C56.7,-53.5,70.3,-42.8,76.4,-28.5C82.4,-14.2,80.9,3.7,74.9,19.1C68.9,34.5,58.5,47.4,45.3,57.1C32.1,66.8,16.1,73.3,-0.2,73.6C-16.5,73.8,-33,67.8,-46.3,57.7C-59.6,47.6,-69.7,33.3,-75.7,16.6C-81.7,-0.1,-83.6,-19.3,-76.9,-34.5C-70.2,-49.7,-54.9,-60.9,-39.7,-69.7C-24.5,-78.5,-9.3,-84.9,3.2,-89.7C15.7,-94.5,31.4,-97.7,42.7,-62.9Z" transform="translate(100 100)" fill="rgba(255,255,255,0.1)"/></svg>');
-            background-repeat: no-repeat;
-            background-size: contain;
-            opacity: 0.2;
-        }
-
-        /* AOS animations */
-        [data-aos] {
-            opacity: 0;
-            transition-property: transform, opacity;
-        }
-
-        [data-aos].aos-animate {
-            opacity: 1;
-        }
-
-        /* Media Queries */
-        @media (max-width: 1200px) {
-            .container {
-                width: 95%;
-                height: auto;
-            }
-
-            .promo-banner {
-                display: none;
-            }
-        }
-
-        @media (max-width: 900px) {
-            main {
-                flex-direction: column;
-            }
-
-            .content-left,
-            .content-middle,
-            .content-right {
-                width: 100%;
-                min-width: 100%;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .navbar-nav {
-                display: none;
-            }
-
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .period-selector {
-                align-self: flex-start;
-            }
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-
-        .container {
-            overflow-x: hidden;
-        }
-
-        .add-expense-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-        }
-
         .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+            text-align: center;
         }
 
         .card-header h2 {
             font-size: 18px;
-            font-weight: 600;
         }
 
-        .new-badge {
-            background-color: #f0f8ff;
-            color: #6495ed;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .new-label {
-            font-weight: 600;
-        }
-
-        .expense-form .form-group {
-            margin-bottom: 15px;
-        }
-
-        .expense-form label {
-            display: block;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .expense-form .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #333;
-            box-sizing: border-box;
-        }
-
-        .expense-form .form-control:focus {
-            outline: none;
-            border-color: rgba(59, 130, 246, 0.8);
-            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-        }
-
-        .amount-input {
-            position: relative;
-        }
-
-        .currency-symbol {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-            font-size: 14px;
-        }
-
-        .amount-input .form-control {
-            padding-left: 30px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-group.half {
-            width: 50%;
-        }
-
-        .btn-submit {
-            background-color: rgba(59, 130, 246, 0.8);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .btn-submit:hover {
-            background-color: rgba(59, 130, 246, 1);
-        }
-
-        .illustration-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .add-expense-card {
+            padding: 20px;
         }
 
         .expense-illustration {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            height: 200px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .add-expense-container {
+            padding: 0 15px;
         }
 
-        .tips-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-        }
-
-        .tips-card h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .tips-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .tips-list li {
-            display: flex;
-            align-items: center;
+        .stats-grid {
+            grid-template-columns: 1fr;
             gap: 10px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #333;
+        }
+    }
+
+    /* Loading State */
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-submit.loading {
+        position: relative;
+        color: transparent;
+    }
+
+    .btn-submit.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: translate(-50%, -50%) rotate(0deg);
         }
 
-        .tips-list li i {
-            color: rgba(59, 130, 246, 0.8);
+        100% {
+            transform: translate(-50%, -50%) rotate(360deg);
         }
+    }
 
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
+    /* Form Validation Styles */
+    .form-control.error {
+        border-color: #ef4444;
+        background-color: #fef2f2;
+    }
 
-            .form-group.half {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
+    .form-control.success {
+        border-color: #10b981;
+        background-color: #f0fdf4;
+    }
 
-<body>
-    <div class="dashboard-container">
-        <header>
-            <nav>
-                <div class="logo">MoneyTrack</div>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/home">Home</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/add">Add <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/display">History</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/limit">Limit</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Report
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/today">Today</a>
-                            <a class="dropdown-item" href="/month">Month</a>
-                            <a class="dropdown-item" href="/year">Year</a>
-                        </div>
-                    </li>
-                </ul>
-                <div class="user-profile">
-                    <div class="notification">
-                        <i class="fa-regular fa-bell"></i>
-                    </div>
-                    <div class="profile">
-                        <span>Joseph Mitchell</span>
-                        <div class="avatar">JM</div>
+    .error-message {
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 4px;
+        display: none;
+    }
+
+    .form-control.error+.error-message {
+        display: block;
+    }
+
+    /* Add these new styles for the account selector */
+    .account-selector {
+        position: relative;
+    }
+
+    .account-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .account-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: white;
+    }
+
+    .account-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .account-name {
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .account-balance {
+        font-size: 12px;
+        color: #666;
+    }
+
+    /* Custom select styling */
+    .custom-select {
+        position: relative;
+        width: 100%;
+    }
+
+    .custom-select select {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        padding: 12px 16px;
+        padding-right: 40px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        background-color: #fafafa;
+        cursor: pointer;
+    }
+
+    .custom-select::after {
+        content: '\f107';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        pointer-events: none;
+    }
+
+    .custom-select select:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.8);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: white;
+    }
+
+    /* No accounts message */
+    .no-accounts-message {
+        padding: 12px 16px;
+        background-color: #fff8e6;
+        border: 1px solid #ffeeba;
+        border-radius: 8px;
+        color: #856404;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .no-accounts-message a {
+        color: #0d6efd;
+        text-decoration: underline;
+        font-weight: 500;
+    }
+
+    /* Account type badges */
+    .account-type {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .account-type-cash {
+        background-color: #e9f5e9;
+        color: #2e7d32;
+    }
+
+    .account-type-card {
+        background-color: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .account-type-bank {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .account-type-mobile {
+        background-color: #fff8e1;
+        color: #f57f17;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="add-expense-container">
+    <!-- Flash Messages Handler -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash-data" data-message="{{ message }}" data-category="{{ category }}"></div>
+    {% endfor %}
+    {% endwith %}
+
+    <div class="add-expense-main">
+        <!-- Left Side - Form -->
+        <div class="form-section">
+            <div class="add-expense-card" data-aos="fade-right">
+                <div class="card-header">
+                    <h2>Add New Expense</h2>
+                    <div class="new-badge">
+                        <i class="fas fa-plus"></i>
+                        <span class="new-label">Track</span>
+                        your spending
                     </div>
                 </div>
-            </nav>
-        </header>
 
-        <main>
-            <div class="content-left">
-                <div class="add-expense-card">
-                    <div class="card-header">
-                        <h2>Add Expense</h2>
-                        <div class="new-badge">
-                            <span class="new-label">New</span>
-                            Track your spending
+                <form action="/addexpense" method="POST" class="expense-form" id="expense-form">
+                    <div class="form-group">
+                        <label for="date">
+                            <i class="fas fa-calendar-alt"></i> Date & Time
+                        </label>
+                        <input class="form-control" type="datetime-local" name="date" id="date" required>
+                        <div class="error-message">Please select a valid date and time</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expensename">
+                            <i class="fas fa-tag"></i> Expense Description
+                        </label>
+                        <input class="form-control" type="text" name="expensename" id="expensename"
+                            placeholder="What did you spend on?" required maxlength="100">
+                        <div class="error-message">Please enter a description (max 100 characters)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">
+                            <i class="fas fa-dollar-sign"></i> Amount
+                        </label>
+                        <div class="amount-input">
+                            <span class="currency-symbol">GH₵</span>
+                            <input class="form-control" type="number" min="0.01" step="0.01" name="amount" id="amount"
+                                placeholder="0.00" required>
+                        </div>
+                        <div class="error-message">Please enter a valid amount (minimum GH₵0.01)</div>
+                    </div>
+
+                    <!-- Replace account_id input with account selector dropdown -->
+                    <div class="form-group">
+                        <label for="account_id">
+                            <i class="fas fa-credit-card"></i> Select Account
+                        </label>
+
+                        {% if user_accounts %}
+                        <div class="custom-select">
+                            <select class="form-control" name="account_id" id="account_id" required>
+                                <option value="" disabled selected>Choose an account</option>
+                                {% for account in user_accounts %}
+                                <option value="{{ account.id }}" data-type="{{ account.account_type }}"
+                                    data-balance="{{ account.balance }}">
+                                    {{ account.account_name }} (GH₵{{ "%.2f"|format(account.balance) }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="error-message">Please select an account</div>
+                        {% else %}
+                        <div class="no-accounts-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div>
+                                <p>You don't have any accounts set up yet.</p>
+                                <a href="/add_account">Add your first account</a> to track expenses.
+                            </div>
+                        </div>
+                        <input type="hidden" name="account_id" value="0">
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="paymode">
+                                <i class="fas fa-wallet"></i> Payment Method
+                            </label>
+                            <select class="form-control" name="paymode" id="paymode" required>
+                                <option value="" disabled selected>Choose payment method</option>
+                                <option value="cash">💵 Cash</option>
+                                <option value="debitcard">💳 Debit Card</option>
+                                <option value="creditcard">💳 Credit Card</option>
+                                <option value="epayment">📱 Mobile Money</option>
+                                <option value="onlinebanking">🏦 Online Banking</option>
+                            </select>
+                            <div class="error-message">Please select a payment method</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">
+                                <i class="fas fa-list"></i> Category
+                            </label>
+                            <select class="form-control" name="category" id="category" required>
+                                <option value="" disabled selected>Choose category</option>
+                                <option value="food">🍽️ Food & Dining</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="business">💼 Business</option>
+                                <option value="rent">🏠 Rent & Housing</option>
+                                <option value="EMI">💰 EMI & Loans</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                            <div class="error-message">Please select a category</div>
                         </div>
                     </div>
-                    <form action="/addexpense" method="POST" class="expense-form">
-                        <div class="form-group">
-                            <label for="date">Date</label>
-                            <input class="form-control" type="datetime-local" name="date" id="date" required>
+
+                    <button type="submit" class="btn-submit" id="submit-btn">
+                        <i class="fas fa-plus"></i> Add Expense
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side - Illustration & Tips -->
+        <div class="content-section">
+            <div class="illustration-container" data-aos="fade-left">
+                <!-- Account Preview Card (New) -->
+                <div class="quick-stats" id="account-preview" style="display: none;">
+                    <h4><i class="fas fa-credit-card"></i> <span id="preview-account-name">Selected Account</span></h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="preview-account-balance">GH₵0.00</div>
+                            <div class="stat-label">Current Balance</div>
                         </div>
-                        <div class="form-group">
-                            <label for="expensename">Expense Name</label>
-                            <input class="form-control" type="text" name="expensename" id="expensename"
-                                placeholder="What did you spend on?" required>
+                        <div class="stat-item">
+                            <div class="stat-value" id="preview-account-type">-</div>
+                            <div class="stat-label">Account Type</div>
                         </div>
-                        <div class="form-group">
-                            <label for="amount">Amount</label>
-                            <div class="amount-input">
-                                <span class="currency-symbol">GH$</span>
-                                <input class="form-control" type="number" min="0" step="0.01" name="amount" id="amount"
-                                    placeholder="0.00" required>
-                            </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <h4><i class="fas fa-chart-line"></i> Quick Stats</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">This Month</div>
                         </div>
-                        <div class="form-group">
-                            <label for="account_id">Account</label>
-                            <div class="amount-input">
-                                <input class="form-control" type="number" name="account_id" id="account_id" required>
-                            </div>
+                        <div class="stat-item">
+                            <div class="stat-value">GH₵2,450</div>
+                            <div class="stat-label">Total Spent</div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label for="paymode">Payment Method</label>
-                                <select class="form-control" name="paymode" id="paymode" required>
-                                    <option value="" selected disabled hidden>Select payment method</option>
-                                    <option value="cash">Cash</option>
-                                    <option value="debitcard">Debit Card</option>
-                                    <option value="creditcard">Credit Card</option>
-                                    <option value="epayment">E-Payment</option>
-                                    <option value="onlinebanking">Online Banking</option>
-                                </select>
-                            </div>
-                            <div class="form-group half">
-                                <label for="category">Category</label>
-                                <select class="form-control" name="category" id="category" required>
-                                    <option value="" selected disabled hidden>Select category</option>
-                                    <option value="food">Food</option>
-                                    <option value="entertainment">Entertainment</option>
-                                    <option value="business">Business</option>
-                                    <option value="rent">Rent</option>
-                                    <option value="EMI">EMI</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-submit">Add Expense</button>
-                    </form>
+                    </div>
+                </div>
+
+                <!-- Illustration -->
+                <img src="https://images.unsplash.com/photo-1560472355-536de3962603?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Expense tracking illustration" class="expense-illustration">
+
+                <!-- Tips Card -->
+                <div class="tips-card">
+                    <h3><i class="fas fa-lightbulb"></i> Smart Tracking Tips</h3>
+                    <ul class="tips-list">
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            Track expenses immediately to avoid forgetting
+                        </li>
+                        <li>
+                            <i class="fas fa-tags"></i>
+                            Use specific categories for better insights
+                        </li>
+                        <li>
+                            <i class="fas fa-chart-bar"></i>
+                            Review your spending patterns weekly
+                        </li>
+                        <li>
+                            <i class="fas fa-target"></i>
+                            Set monthly budgets for each category
+                        </li>
+                        <li>
+                            <i class="fas fa-receipt"></i>
+                            Keep receipts for important purchases
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <div class="content-right">
-                <div class="illustration-container">
-                    <img src="https://images.unsplash.com/photo-1560472355-536de3962603?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt="Expense tracking illustration" class="expense-illustration">
-                    <div class="tips-card">
-                        <h3>Tips for Tracking</h3>
-                        <ul class="tips-list">
-                            <li><i class="fa-solid fa-check"></i> Track expenses as they happen</li>
-                            <li><i class="fa-solid fa-check"></i> Categorize correctly for better insights</li>
-                            <li><i class="fa-solid fa-check"></i> Review your spending patterns weekly</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
-</body>
+</div>
+{% endblock %}
 
-</html>
+{% block extra_js %}
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<script>
+    // Toast notification function
+    function showToast(message, type) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: type === "success" ? "#10b981" : "#ef4444",
+            close: true
+        }).showToast();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('expense-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const accountSelect = document.getElementById('account_id');
+        const accountPreview = document.getElementById('account-preview');
+        const previewName = document.getElementById('preview-account-name');
+        const previewBalance = document.getElementById('preview-account-balance');
+        const previewType = document.getElementById('preview-account-type');
+
+        // Set current date and time as default
+        const now = new Date();
+        const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        document.getElementById('date').value = localDateTime;
+
+        // Account selection preview
+        if (accountSelect) {
+            accountSelect.addEventListener('change', function () {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    const accountName = selectedOption.text.split(' (')[0];
+                    const accountBalance = selectedOption.dataset.balance;
+                    const accountType = selectedOption.dataset.type;
+
+                    previewName.textContent = accountName;
+                    previewBalance.textContent = `GH₵${parseFloat(accountBalance).toFixed(2)}`;
+
+                    // Format account type nicely
+                    let formattedType;
+                    switch (accountType.toLowerCase()) {
+                        case 'cash':
+                            formattedType = 'Cash Wallet';
+                            break;
+                        case 'debitcard':
+                        case 'creditcard':
+                            formattedType = 'Card';
+                            break;
+                        case 'epayment':
+                            formattedType = 'Mobile Money';
+                            break;
+                        case 'onlinebanking':
+                            formattedType = 'Bank Account';
+                            break;
+                        default:
+                            formattedType = accountType.charAt(0).toUpperCase() + accountType.slice(1);
+                    }
+
+                    previewType.textContent = formattedType;
+                    accountPreview.style.display = 'block';
+
+                    // Auto-select payment method based on account type
+                    const paymodeSelect = document.getElementById('paymode');
+                    if (paymodeSelect) {
+                        switch (accountType.toLowerCase()) {
+                            case 'cash':
+                                paymodeSelect.value = 'cash';
+                                break;
+                            case 'debitcard':
+                                paymodeSelect.value = 'debitcard';
+                                break;
+                            case 'creditcard':
+                                paymodeSelect.value = 'creditcard';
+                                break;
+                            case 'epayment':
+                                paymodeSelect.value = 'epayment';
+                                break;
+                            case 'onlinebanking':
+                                paymodeSelect.value = 'onlinebanking';
+                                break;
+                        }
+                    }
+                } else {
+                    accountPreview.style.display = 'none';
+                }
+            });
+        }
+
+        // Form validation
+        function validateField(field) {
+            const value = field.value.trim();
+            let isValid = true;
+
+            // Remove previous validation classes
+            field.classList.remove('error', 'success');
+
+            switch (field.id) {
+                case 'expensename':
+                    isValid = value.length > 0 && value.length <= 100;
+                    break;
+                case 'amount':
+                    isValid = parseFloat(value) >= 0.01;
+                    break;
+                case 'account_id':
+                    isValid = value !== '';
+                    break;
+                case 'paymode':
+                case 'category':
+                    isValid = value !== '';
+                    break;
+                case 'date':
+                    isValid = value !== '';
+                    break;
+            }
+
+            field.classList.add(isValid ? 'success' : 'error');
+            return isValid;
+        }
+
+        // Add real-time validation
+        form.querySelectorAll('.form-control').forEach(field => {
+            field.addEventListener('blur', () => validateField(field));
+            field.addEventListener('input', () => {
+                if (field.classList.contains('error')) {
+                    validateField(field);
+                }
+            });
+        });
+
+        // Form submission
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Validate all fields
+            const fields = form.querySelectorAll('.form-control');
+            let allValid = true;
+
+            fields.forEach(field => {
+                if (!validateField(field)) {
+                    allValid = false;
+                }
+            });
+
+            if (!allValid) {
+                showToast('Please fix the errors in the form', 'error');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            // Submit form
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+        });
+
+        // Handle flash messages
+        document.querySelectorAll('.flash-data').forEach(el => {
+            const message = el.dataset.message;
+            const category = el.dataset.category;
+
+            showToast(message, category);
+        });
+
+        // Amount input formatting
+        const amountInput = document.getElementById('amount');
+        amountInput.addEventListener('input', function () {
+            let value = this.value;
+            if (value && !isNaN(value)) {
+                // Ensure 2 decimal places on blur
+                this.addEventListener('blur', function () {
+                    if (this.value) {
+                        this.value = parseFloat(this.value).toFixed(2);
+                    }
+                }, { once: true });
+            }
+        });
+
+        // Character counter for expense name
+        const expenseNameInput = document.getElementById('expensename');
+        expenseNameInput.addEventListener('input', function () {
+            const remaining = 100 - this.value.length;
+            const label = this.previousElementSibling;
+
+            // Update label with character count
+            if (remaining < 20) {
+                label.innerHTML = `<i class="fas fa-tag"></i> Expense Description <small>(${remaining} characters left)</small>`;
+            } else {
+                label.innerHTML = `<i class="fas fa-tag"></i> Expense Description`;
+            }
+        });
+    });
+</script>
+{% endblock %}
