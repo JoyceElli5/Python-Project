@@ -20,7 +20,7 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
 app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', 'localhost')
 app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'root')
-app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', '918273645')
+app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', 'Confrontation@433')
 app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'expense_tracker')
 
 # Session configuration for security
