@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="expense-container">
+    <div class="expense-header">
+        <h1>⚠️ Expense Limit Warning</h1>
+    </div>
+
+    <div class="expense-stats">
+        <div class="stat-card" style="border-left: 4px solid #ef4444;">
+            <div class="expense-icon" style="background-color: #fee2e2; color: #ef4444; margin: 0 auto 15px;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-value" style="color: #ef4444;">₵{{ amount }}</div>
+            <div class="stat-label">Expense Amount</div>
+        </div>
+
+        <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+            <div class="expense-icon" style="background-color: #fef3c7; color: #f59e0b; margin: 0 auto 15px;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-value" style="color: #f59e0b;">₵{{ limit }}</div>
+            <div class="stat-label">Monthly Limit</div>
+        </div>
+
+        <div class="stat-card" style="border-left: 4px solid #dc2626;">
+            <div class="expense-icon" style="background-color: #fee2e2; color: #dc2626; margin: 0 auto 15px;">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="stat-value" style="color: #dc2626;">₵{{ amount - limit }}</div>
+            <div class="stat-label">Over Limit</div>
+        </div>
+    </div>
+
+    <div class="expense-filters">
+        <div style="text-align: center; padding: 20px;">
+            <div class="expense-icon"
+                style="background-color: #fef3c7; color: #f59e0b; margin: 0 auto 20px; width: 60px; height: 60px; font-size: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 style="color: #dc2626; margin-bottom: 15px; font-size: 24px;">Caution!</h2>
+            <p style="font-size: 16px; color: #666; margin-bottom: 30px; line-height: 1.6;">
+                Your expense of <strong style="color: #ef4444;">₵{{ amount }}</strong> exceeds your set monthly limit of
+                <strong style="color: #f59e0b;">₵{{ limit }}</strong>.
+                <br><br>
+                Proceeding with this expense will put you over budget. Would you like to continue anyway?
+            </p>
+
+            <form method="POST" action="/confirm_expense"
+                style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button type="submit" class="btn-action"
+                    style="background-color: #ef4444; color: white; padding: 12px 24px; font-size: 14px; border: none; cursor: pointer;">
+                    <i class="fas fa-check" style="margin-right: 8px;"></i>
+                    Proceed Anyway
+                </button>
+                <a href="/add" class="btn-action"
+                    style="background-color: #f5f5f7; color: #666; padding: 12px 24px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center;">
+                    <i class="fas fa-times" style="margin-right: 8px;"></i>
+                    Cancel & Go Back
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <div class="expense-list">
+        <div style="padding: 20px; text-align: center; color: #666;">
+            <i class="fas fa-lightbulb"
+                style="font-size: 24px; margin-bottom: 15px; color: rgba(59, 130, 246, 0.8);"></i>
+            <h3 style="margin-bottom: 10px; color: #333;">Budget Management Tips</h3>
+            <ul style="text-align: left; max-width: 400px; margin: 0 auto; line-height: 1.6;">
+                <li style="margin-bottom: 8px;">Review your monthly expenses regularly</li>
+                <li style="margin-bottom: 8px;">Consider adjusting your budget limit if needed</li>
+                <li style="margin-bottom: 8px;">Track spending by category to identify patterns</li>
+                <li>Set up notifications for budget milestones</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    .expense-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .expense-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .expense-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #eee;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .expense-filters {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .expense-list {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #eee;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .expense-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f7;
+        font-size: 16px;
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .expense-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+        }
+
+        .expense-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

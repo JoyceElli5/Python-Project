@@ -15,7 +15,7 @@ app.secret_key = 'a'
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'plantain2020'
+app.config['MYSQL_PASSWORD'] = '918273645'
 app.config['MYSQL_DB'] = 'expense_tracker'
 
 
@@ -53,10 +53,10 @@ def home():
     total_income = total_balance + total_expenses
     
     # Get budget limit
-    cursor.execute('SELECT limits FROM limits WHERE id = (SELECT MAX(id) FROM limits WHERE user_id = %s)', (session['id'],))
+    cursor.execute('SELECT limits FROM limitss WHERE id = (SELECT MAX(id) FROM limitss WHERE user_id = %s)', (session['id'],))
     limit_result = cursor.fetchone()
-    budget_limit = float(limit_result['limitss']) if limit_result and limit_result['limitss'] else 0
-    
+    budget_limit = float(limit_result['limits']) if limit_result and limit_result['limits'] else 0
+
     # Get recent transactions
     cursor.execute('''
         SELECT * FROM expenses 
@@ -188,22 +188,64 @@ def adding():
     return render_template('add.html')
 
 
-@app.route('/addexpense',methods=['GET', 'POST'])
+@app.route('/addexpense', methods=['GET', 'POST'])
 def addexpense():
-    
     date = request.form['date']
     expensename = request.form['expensename']
-    amount = request.form['amount']
+    amount = float(request.form['amount'])
     paymode = request.form['paymode']
     category = request.form['category']
     account_id = request.form['account_id']
 
+    # Get latest limit for this user
     cursor = mysql.connection.cursor()
-    cursor.execute('INSERT INTO expenses VALUES (NULL,  % s, % s, % s, % s, % s, % s, % s)', (session['id'] ,date, expensename, amount, paymode, category, account_id))
+    cursor.execute('SELECT limits FROM limitss WHERE user_id = %s ORDER BY id DESC LIMIT 1', (session['id'],))
+    result = cursor.fetchone()
+
+    limit = float(result[0]) if result else None
+
+    # If there's a limit and amount exceeds it
+    if limit and amount > limit:
+        # Store form data in session temporarily
+        session['pending_expense'] = {
+            'date': date,
+            'expensename': expensename,
+            'amount': amount,
+            'paymode': paymode,
+            'category': category,
+            'account_id': account_id
+        }
+        return render_template('limit_warning.html', amount=amount, limit=limit)
+
+    # Proceed normally if within limit
+    cursor.execute(
+        'INSERT INTO expenses VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)',
+        (session['id'], date, expensename, amount, paymode, category, account_id)
+    )
     mysql.connection.commit()
-    print(date + " " + expensename + " " + amount + " " + paymode + " " + category)
-    
+
     return redirect("/display")
+
+
+
+@app.route('/confirm_expense', methods=['POST'])
+def confirm_expense():
+    data = session.get('pending_expense')
+
+    if not data:
+        return redirect('/add')  # fallback
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        'INSERT INTO expenses VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)',
+        (session['id'], data['date'], data['expensename'], data['amount'],
+         data['paymode'], data['category'], data['account_id'])
+    )
+    mysql.connection.commit()
+
+    session.pop('pending_expense', None)
+    return redirect("/display")
+
 
 
 
@@ -211,15 +253,13 @@ def addexpense():
 
 @app.route("/display")
 def display():
-    print(session["username"],session['id'])
+    print(session["username"], session["id"])
     
-    cursor = mysql.connection.cursor()
-    cursor.execute('SELECT * FROM expenses WHERE userid = % s AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)  # 👈 DictCursor for dict-like rows
+    cursor.execute('SELECT * FROM expenses WHERE userid = %s ORDER BY `expenses`.`date` DESC', (str(session['id']),))
     expense = cursor.fetchall()
-  
-       
-    return render_template('display.html' ,expense = expense)
-                          
+    
+    return render_template('display.html', expense=expense)
 
 
 
@@ -257,6 +297,8 @@ def get_category_icon(category):
         'other': 'fa-tag'
     }
     return icons.get(category, 'fa-tag')
+app.jinja_env.globals.update(get_category_icon=get_category_icon)
+
 
 # Add payment method route
 @app.route("/add_payment_method", methods=['POST'])
@@ -566,7 +608,7 @@ def limitnum():
      if request.method == "POST":
          number= request.form['number']
          cursor = mysql.connection.cursor()
-         cursor.execute('INSERT INTO limits VALUES (NULL, % s, % s) ',(session['id'], number))
+         cursor.execute('INSERT INTO limitss VALUES (NULL, % s, % s) ',(session['id'], number))
          mysql.connection.commit()
          return redirect('/limitn')
      
@@ -574,7 +616,7 @@ def limitnum():
 @app.route("/limitn") 
 def limitn():
     cursor = mysql.connection.cursor()
-    cursor.execute('SELECT limitss FROM `limits` ORDER BY `limits`.`id` DESC LIMIT 1')
+    cursor.execute('SELECT limits FROM `limitss` ORDER BY `limitss`.`id` DESC LIMIT 1')
     x= cursor.fetchone()
     s = x[0]
     
@@ -586,12 +628,12 @@ def limitn():
 @app.route("/today")
 def today():
       cursor = mysql.connection.cursor()
-      cursor.execute('SELECT TIME(date)   , amount FROM expenses  WHERE userid = %s AND DATE(date) = DATE(NOW()) ',(str(session['id'])))
+      cursor.execute('SELECT TIME(date)   , amount FROM expenses  WHERE userid = %s AND DATE(date) = DATE(NOW()) ',(str(session['id']),))
       texpense = cursor.fetchall()
       print(texpense)
       
       cursor = mysql.connection.cursor()
-      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND DATE(date) = DATE(NOW()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
+      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND DATE(date) = DATE(NOW()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id']),))
       expense = cursor.fetchall()
   
       total=0
@@ -642,12 +684,12 @@ def today():
 @app.route("/month")
 def month():
       cursor = mysql.connection.cursor()
-      cursor.execute('SELECT DATE(date), SUM(amount) FROM expenses WHERE userid= %s AND MONTH(DATE(date))= MONTH(now()) GROUP BY DATE(date) ORDER BY DATE(date) ',(str(session['id'])))
+      cursor.execute('SELECT DATE(date), SUM(amount) FROM expenses WHERE userid= %s AND MONTH(DATE(date))= MONTH(now()) GROUP BY DATE(date) ORDER BY DATE(date) ',(str(session['id']),))
       texpense = cursor.fetchall()
       print(texpense)
       
       cursor = mysql.connection.cursor()
-      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND MONTH(DATE(date))= MONTH(now()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
+      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND MONTH(DATE(date))= MONTH(now()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id']),))
       expense = cursor.fetchall()
   
       total=0
@@ -702,7 +744,7 @@ def year():
       print(texpense)
       
       cursor = mysql.connection.cursor()
-      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND YEAR(DATE(date))= YEAR(now()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id'])))
+      cursor.execute('SELECT * FROM expenses WHERE userid = % s AND YEAR(DATE(date))= YEAR(now()) AND date ORDER BY `expenses`.`date` DESC',(str(session['id']),))
       expense = cursor.fetchall()
   
       total=0
@@ -757,7 +799,7 @@ def logout():
    session.pop('loggedin', None)
    session.pop('id', None)
    session.pop('username', None)
-   return render_template('home.html')
+   return render_template('index.html')
 
              
 

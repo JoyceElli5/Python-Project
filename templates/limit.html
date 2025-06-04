@@ -1,19 +1,244 @@
 {% extends 'base.html' %}
 
-{% block body %} 
+{% block body %}
+<div class="expense-container">
+    <div class="expense-header">
+        <h1>Monthly Budget Limit</h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-chart-line" style="color: rgba(59, 130, 246, 0.8); font-size: 24px;"></i>
+        </div>
+    </div>
 
-<p> Currently your MONTHLY limit is GH$ {{y}} </p>
+    <div class="expense-stats">
+        <div class="stat-card" style="border-left: 4px solid rgba(59, 130, 246, 0.8);">
+            <div class="expense-icon"
+                style="background-color: #dbeafe; color: rgba(59, 130, 246, 0.8); margin: 0 auto 15px;">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="stat-value">GH$ {{ y }}</div>
+            <div class="stat-label">Current Monthly Limit</div>
+        </div>
 
+        <div class="stat-card" style="border-left: 4px solid #10b981;">
+            <div class="expense-icon" style="background-color: #d1fae5; color: #10b981; margin: 0 auto 15px;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="stat-value" style="color: #10b981;">Active</div>
+            <div class="stat-label">Budget Protection</div>
+        </div>
 
-<form action="/limitnum" method="POST">
+        <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+            <div class="expense-icon" style="background-color: #fef3c7; color: #f59e0b; margin: 0 auto 15px;">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-value" style="color: #f59e0b;">Monthly</div>
+            <div class="stat-label">Reset Period</div>
+        </div>
+    </div>
 
-    <p> ENTER the MONTHLY LIMIT to avoid over EXPENSES</p> <br/>
-    <input type="number" name="number" required/> <span> 
-        <button class="btn btn-warning" type="submit">ENTER</button>
-    </span>
-    
+    <div class="expense-filters">
+        <div style="text-align: center; padding: 30px;">
+            <div class="expense-icon"
+                style="background-color: #dbeafe; color: rgba(59, 130, 246, 0.8); margin: 0 auto 20px; width: 60px; height: 60px; font-size: 24px;">
+                <i class="fas fa-cog"></i>
+            </div>
+            <h2 style="color: #333; margin-bottom: 15px; font-size: 24px;">Set Your Monthly Budget Limit</h2>
+            <p
+                style="font-size: 16px; color: #666; margin-bottom: 30px; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Setting a monthly limit helps you stay on track with your spending goals. You'll receive warnings when
+                you approach or exceed your limit.
+            </p>
 
+            <form action="/limitnum" method="POST" style="max-width: 400px; margin: 0 auto;">
+                <div class="filter-group" style="margin-bottom: 20px;">
+                    <label
+                        style="font-size: 14px; color: #666; font-weight: 500; margin-bottom: 8px; display: block; text-align: left;">
+                        <i class="fas fa-dollar-sign" style="margin-right: 5px;"></i>
+                        Monthly Limit Amount (GH$)
+                    </label>
+                    <input type="number" name="number" required placeholder="Enter your monthly budget limit"
+                        style="width: 100%; padding: 12px 16px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: border-color 0.3s ease;"
+                        min="0" step="0.01" onFocus="this.style.borderColor='rgba(59, 130, 246, 0.8)'"
+                        onBlur="this.style.borderColor='#ddd'" />
+                </div>
 
+                <button type="submit" class="btn-action"
+                    style="background-color: rgba(59, 130, 246, 0.8); color: white; padding: 12px 30px; font-size: 16px; border: none; cursor: pointer; width: 100%; border-radius: 8px; font-weight: 600;">
+                    <i class="fas fa-save" style="margin-right: 8px;"></i>
+                    Set Monthly Limit
+                </button>
+            </form>
+        </div>
+    </div>
 
-</form>
+    <div class="expense-list">
+        <div style="padding: 30px;">
+            <h3 style="color: #333; margin-bottom: 20px; text-align: center;">
+                <i class="fas fa-info-circle" style="color: rgba(59, 130, 246, 0.8); margin-right: 10px;"></i>
+                How Budget Limits Work
+            </h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="text-align: center; padding: 20px;">
+                    <div class="expense-icon"
+                        style="background-color: #dbeafe; color: rgba(59, 130, 246, 0.8); margin: 0 auto 15px;">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h4 style="color: #333; margin-bottom: 10px;">Smart Notifications</h4>
+                    <p style="color: #666; font-size: 14px; line-height: 1.5;">Get alerts when you reach 75% and 90% of
+                        your monthly limit</p>
+                </div>
+
+                <div style="text-align: center; padding: 20px;">
+                    <div class="expense-icon" style="background-color: #d1fae5; color: #10b981; margin: 0 auto 15px;">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4 style="color: #333; margin-bottom: 10px;">Visual Tracking</h4>
+                    <p style="color: #666; font-size: 14px; line-height: 1.5;">See your spending progress with intuitive
+                        charts and progress bars</p>
+                </div>
+
+                <div style="text-align: center; padding: 20px;">
+                    <div class="expense-icon" style="background-color: #fef3c7; color: #f59e0b; margin: 0 auto 15px;">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h4 style="color: #333; margin-bottom: 10px;">Auto Reset</h4>
+                    <p style="color: #666; font-size: 14px; line-height: 1.5;">Your limit automatically resets at the
+                        beginning of each month</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .expense-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .expense-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .expense-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #eee;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: rgba(59, 130, 246, 0.8);
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .expense-filters {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .expense-list {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #eee;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .expense-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f7;
+        font-size: 16px;
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .filter-group input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        background-color: rgba(59, 130, 246, 1) !important;
+    }
+
+    @media (max-width: 768px) {
+        .expense-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+        }
+
+        .expense-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .expense-container {
+            padding: 15px;
+        }
+    }
+</style>
 {% endblock %}

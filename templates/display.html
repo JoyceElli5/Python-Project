@@ -2,184 +2,467 @@
 
 {% block title %}Expenses | MyBudget{% endblock %}
 
-{% block body %}
-<h2 class="page-title"><i class="fas fa-history"></i> EXPENSES</h2>
+{% block extra_css %}
+<style>
+    .expense-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-<div class="expense-list">
+    .expense-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .expense-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #eee;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: rgba(59, 130, 246, 0.8);
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .expense-filters {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #eee;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .expense-list {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    .expense-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto auto auto auto;
+        gap: 20px;
+        padding: 20px;
+        border-bottom: 1px solid #f5f5f7;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+
+    .expense-item:hover {
+        background-color: #f9fafb;
+    }
+
+    .expense-item:last-child {
+        border-bottom: none;
+    }
+
+    .expense-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f7;
+        font-size: 16px;
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .expense-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .expense-name {
+        font-weight: 600;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .expense-meta {
+        font-size: 12px;
+        color: #666;
+        display: flex;
+        gap: 15px;
+    }
+
+    .expense-amount {
+        font-weight: 700;
+        font-size: 18px;
+        color: #ef4444;
+    }
+
+    .expense-category {
+        background-color: #f5f5f7;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .expense-account {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .expense-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .btn-edit:hover {
+        background-color: #bfdbfe;
+    }
+
+    .btn-delete {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-delete:hover {
+        background-color: #fecaca;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 8px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .pagination a {
+        background-color: white;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+
+    .pagination a:hover {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: rgba(59, 130, 246, 0.8);
+    }
+
+    .pagination .current {
+        background-color: rgba(59, 130, 246, 0.8);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .empty-state p {
+        margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+        .expense-item {
+            grid-template-columns: auto 1fr auto;
+            gap: 15px;
+        }
+
+        .expense-category,
+        .expense-account {
+            display: none;
+        }
+
+        .filter-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .expense-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="expense-container">
+    <div class="expense-header" data-aos="fade-down">
+        <h1 class="page-title">
+            <i class="fas fa-history"></i>
+            Expense History
+        </h1>
+        <a href="/add" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Expense
+        </a>
+    </div>
+
     {% if expense %}
-    {% for row in expense %}
-    <div class="expense-card">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-2">
-                    <span class="date-badge">{{row[2]}}</span>
-                </div>
-                <div class="col-md-2">
-                    <h6 class="mb-0">{{row[3]}}</h6>
-                </div>
-                <div class="col-md-2">
-                    <span class="text-danger font-weight-bold">GH${{row[4]}}</span>
-                </div>
-                <div class="col-md-2">
-                    <span class="payment-badge">{{row[5]}}</span>
-                </div>
-                <div class="col-md-2">
-                    <span class="category-badge">{{row[6]}}</span>
-                </div>
-                <div class="col-md-2 d-flex">
-                    <a href="/edit/{{row[0]}}" class="btn-action btn-edit mr-2">Edit</a>
-                    <a href="/delete/{{row[0]}}" class="btn-action btn-delete btnDelete">Delete</a>
-                </div>
+    <!-- Expense Statistics -->
+    <div class="expense-stats" data-aos="fade-up">
+        <div class="stat-card">
+            <div class="stat-value">{{ expense|length }}</div>
+            <div class="stat-label">Total Transactions</div>
+        </div>
+        <div class="stat-card">
+            {% set total_amount = expense|sum(attribute='amount') %}
+            <div class="stat-value">GH₵{{ "%.2f"|format(total_amount) }}</div>
+            <div class="stat-label">Total Amount</div>
+        </div>
+        <div class="stat-card">
+            {% set unique_categories = expense|map(attribute='category')|unique|list %}
+            <div class="stat-value">{{ unique_categories|length }}</div>
+            <div class="stat-label">Categories Used</div>
+        </div>
+        <div class="stat-card">
+            {% set avg_amount = (total_amount / expense|length) if expense|length > 0 else 0 %}
+            <div class="stat-value">GH₵{{ "%.2f"|format(avg_amount) }}</div>
+            <div class="stat-label">Average per Transaction</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="expense-filters" data-aos="fade-up" data-aos-delay="100">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>Category</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="food">Food</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="business">Business</option>
+                    <option value="rent">Rent</option>
+                    <option value="EMI">EMI</option>
+                    <option value="transport">Transport</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="shopping">Shopping</option>
+                    <option value="utilities">Utilities</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Date From</label>
+                <input type="date" id="dateFrom">
+            </div>
+            <div class="filter-group">
+                <label>Date To</label>
+                <input type="date" id="dateTo">
+            </div>
+            <div class="filter-group">
+                <label>Amount Range</label>
+                <select id="amountFilter">
+                    <option value="">All Amounts</option>
+                    <option value="0-50">GH₵0 - GH₵50</option>
+                    <option value="50-100">GH₵50 - GH₵100</option>
+                    <option value="100-500">GH₵100 - GH₵500</option>
+                    <option value="500+">GH₵500+</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
             </div>
         </div>
     </div>
-    {% endfor %}
+
+    <!-- Expense List -->
+    <div class="expense-list" data-aos="fade-up" data-aos-delay="200">
+        {% for row in expense %}
+        <div class="expense-item" data-category="{{ row.category }}" data-date="{{ row.date }}"
+            data-amount="{{ row.amount }}">
+            <div class="expense-icon">
+                <i class="{{ get_category_icon(row.category) }}"></i>
+            </div>
+
+            <div class="expense-details">
+                <div class="expense-name">{{ row.expensename }}</div>
+                <div class="expense-meta">
+                    <span><i class="fas fa-calendar"></i>
+                        {% if row.date %}
+                        {{ row.date.strftime('%d %b, %Y') if row.date.strftime else row.date }}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </span>
+                    {% if row.account_name %}
+                    <span><i class="fas fa-credit-card"></i> {{ row.account_name }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="expense-amount">-GH₵{{ "%.2f"|format(row.amount) }}</div>
+
+            <div class="expense-category">{{ row.category.title() }}</div>
+
+            <div class="expense-account">
+                {{ row.account_name or 'Cash' }}
+            </div>
+
+            <div class="expense-actions">
+                <a href="/edit/{{ row.id }}" class="btn-action btn-edit">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="/delete/{{ row.id }}" class="btn-action btn-delete"
+                    onclick="return confirm('Are you sure you want to delete this expense?')">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
     {% else %}
-    <div class="empty-state">
-        <h5><a href="/add">ADD-DATA</a> to Display</h5>
-        <img src="../static/images/not-found.png" alt="No data found" class="img-fluid">
+    <!-- Empty State -->
+    <div class="empty-state" data-aos="fade-up">
+        <i class="fas fa-receipt"></i>
+        <h3>No Expenses Found</h3>
+        <p>You haven't added any expenses yet. Start tracking your spending by adding your first expense.</p>
+        <a href="/add" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Your First Expense
+        </a>
     </div>
     {% endif %}
 </div>
 
-{% if expense %}
-<div class="row mt-5">
-    <div class="col-md-6">
-        <h3 class="breakdown-title">Expense Breakdown</h3>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Food</div>
-                <div id="tfood" class="category-amount">GHc{{ t_food }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Entertainment</div>
-                <div id="tentertainment" class="category-amount">GHc {{ t_entertainment }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Business</div>
-                <div id="tbusiness" class="category-amount">GHc{{ t_business }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Rent</div>
-                <div id="trent" class="category-amount">GHc{{ t_rent }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">EMI</div>
-                <div id="temi" class="category-amount">GHc{{ t_EMI }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Other</div>
-                <div id="tother" class="category-amount">GHc{{ t_other }}</div>
-            </div>
-        </div>
-
-        <div class="breakdown-card total-card">
-            <div class="breakdown-card-body">
-                <div class="category-name">Total</div>
-                <div class="category-amount">GHc {{ total }}</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="chart-container">
-            <canvas id="myChart"></canvas>
-        </div>
-    </div>
-</div>
-{% endif %}
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        {% if expense %}
-        // Get values from the HTML elements
-        let food = document.getElementById('tfood').innerHTML.replace('₹ ', '').trim();
-        let entertainment = document.getElementById('tentertainment').innerHTML.replace('₹ ', '').trim();
-        let business = document.getElementById('tbusiness').innerHTML.replace('₹ ', '').trim();
-        let rent = document.getElementById('trent').innerHTML.replace('₹ ', '').trim();
-        let emi = document.getElementById('temi').innerHTML.replace('₹ ', '').trim();
-        let other = document.getElementById('tother').innerHTML.replace('₹ ', '').trim();
+        // Filter functionality
+        const categoryFilter = document.getElementById('categoryFilter');
+        const dateFromFilter = document.getElementById('dateFrom');
+        const dateToFilter = document.getElementById('dateTo');
+        const amountFilter = document.getElementById('amountFilter');
+        const expenseItems = document.querySelectorAll('.expense-item');
 
-        // Create the chart
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Food', 'Entertainment', 'Business', 'Rent', 'EMI', 'Other'],
-                datasets: [{
-                    label: 'Expenses Chart',
-                    data: [food, entertainment, business, rent, emi, other],
-                    backgroundColor: [
-                        '#f87171', // red
-                        '#1e293b', // dark blue
-                        '#facc15', // yellow
-                        '#94a3b8', // gray
-                        '#3b82f6', // blue
-                        '#f97316'  // orange
-                    ],
-                    borderWidth: 1,
-                    borderColor: '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 12
-                            },
-                            padding: 20
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'EXPENSE BREAKDOWN',
-                        font: {
-                            size: 16,
-                            weight: 'bold'
-                        },
-                        padding: {
-                            top: 10,
-                            bottom: 30
-                        }
+        function applyFilters() {
+            const category = categoryFilter.value.toLowerCase();
+            const dateFrom = dateFromFilter.value;
+            const dateTo = dateToFilter.value;
+            const amountRange = amountFilter.value;
+
+            expenseItems.forEach(item => {
+                let show = true;
+
+                // Category filter
+                if (category && !item.dataset.category.toLowerCase().includes(category)) {
+                    show = false;
+                }
+
+                // Date filter
+                if (dateFrom || dateTo) {
+                    const itemDate = new Date(item.dataset.date);
+                    if (dateFrom && itemDate < new Date(dateFrom)) show = false;
+                    if (dateTo && itemDate > new Date(dateTo)) show = false;
+                }
+
+                // Amount filter
+                if (amountRange) {
+                    const amount = parseFloat(item.dataset.amount);
+                    const [min, max] = amountRange.split('-').map(v => v.replace('+', ''));
+
+                    if (amountRange.includes('+')) {
+                        if (amount < parseFloat(min)) show = false;
+                    } else {
+                        if (amount < parseFloat(min) || amount > parseFloat(max)) show = false;
                     }
-                },
-                cutout: '65%',
-                animation: {
-                    animateScale: true,
-                    animateRotate: true
                 }
-            }
-        });
-        {% endif %}
 
-        // Add confirmation for delete buttons
-        document.querySelectorAll('.btnDelete').forEach(button => {
-            button.addEventListener('click', function (e) {
-                if (!confirm('Are you sure you want to delete this expense?')) {
-                    e.preventDefault();
-                }
+                item.style.display = show ? 'grid' : 'none';
             });
+        }
+
+        // Add event listeners
+        [categoryFilter, dateFromFilter, dateToFilter, amountFilter].forEach(filter => {
+            filter.addEventListener('change', applyFilters);
         });
+
+        window.clearFilters = function () {
+            categoryFilter.value = '';
+            dateFromFilter.value = '';
+            dateToFilter.value = '';
+            amountFilter.value = '';
+            applyFilters();
+        };
     });
 </script>
 {% endblock %}
