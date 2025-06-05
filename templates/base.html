@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+<<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}MyBudget - Expense Tracker{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -621,19 +624,50 @@
     </header>
     {% endif %}
 
-    <div class="content-area">
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-      <div class="container">
+  <div class="content-area">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container">
         {% for category, message in messages %}
-        <div class="alert alert-{{ 'error' if category == 'error' else category }}" data-aos="fade-down">
-          {{ message }}
+        <div class="alert alert-{{ 'error' if category == 'error' else category }} flash-msg" data-aos="fade-down">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
         </div>
         {% endfor %}
-      </div>
-      {% endif %}
-      {% endwith %}
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+
+  <style>
+    .flash-msg {
+       position: relative;
+       padding-right: 40px;
+       transition: opacity 0.5s ease;
+     }
+       .close-btn {
+        position: absolute;
+        top: 50%;
+         right: 10px;
+        transform: translateY(-50%);
+        border: none;
+        background: none;
+        font-size: 1.2em;
+        color: inherit;
+        cursor: pointer;
+      }
+   </style>
+
+<script>
+  // Auto-hide flash messages after 5 seconds
+  setTimeout(() => {
+    document.querySelectorAll('.flash-msg').forEach(el => {
+      el.style.opacity = '0';
+      setTimeout(() => el.remove(), 500); // Give time for fade-out
+    });
+  }, 5000); // 5 seconds
+</script>
 
       <!-- Main Content -->
       <main class="container">
