@@ -1,3 +1,4 @@
+
 # Money Track
 
 A comprehensive expense tracking web application built with Python Flask that helps users manage their finances effectively.
