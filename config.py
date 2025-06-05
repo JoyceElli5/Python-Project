@@ -8,7 +8,7 @@ class Config:
     # Database Configuration
     MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
     MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
+    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'Confrontation@433')
     MYSQL_DB = os.environ.get('MYSQL_DB', 'expense_tracker')
     
     # Session Configuration

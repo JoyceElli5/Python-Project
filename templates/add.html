@@ -509,11 +509,11 @@
                             <i class="fas fa-dollar-sign"></i> Amount
                         </label>
                         <div class="amount-input">
-                            <span class="currency-symbol">GH₵</span>
+                            <span class="currency-symbol">$</span>
                             <input class="form-control" type="number" min="0.01" step="0.01" name="amount" id="amount"
                                 placeholder="0.00" required>
                         </div>
-                        <div class="error-message">Please enter a valid amount (minimum GH₵0.01)</div>
+                        <div class="error-message">Please enter a valid amount (minimum $0.01)</div>
                     </div>
 
                     <!-- Replace account_id input with account selector dropdown -->
@@ -529,7 +529,7 @@
                                 {% for account in user_accounts %}
                                 <option value="{{ account.id }}" data-type="{{ account.account_type }}"
                                     data-balance="{{ account.balance }}">
-                                    {{ account.account_name }} (GH₵{{ "%.2f"|format(account.balance) }})
+                                    {{ account.account_name }} (${{ "%.2f"|format(account.balance) }})
                                 </option>
                                 {% endfor %}
                             </select>
@@ -595,7 +595,7 @@
                     <h4><i class="fas fa-credit-card"></i> <span id="preview-account-name">Selected Account</span></h4>
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <div class="stat-value" id="preview-account-balance">GH₵0.00</div>
+                            <div class="stat-value" id="preview-account-balance">$0.00</div>
                             <div class="stat-label">Current Balance</div>
                         </div>
                         <div class="stat-item">
@@ -614,7 +614,7 @@
                             <div class="stat-label">This Month</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">GH₵2,450</div>
+                            <div class="stat-value">$2,450</div>
                             <div class="stat-label">Total Spent</div>
                         </div>
                     </div>
