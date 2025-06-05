@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings | MyBudget{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eee;
+    }
+
+    .settings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f5f5f7;
+    }
+
+    .settings-header h2 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #333;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+        background-color: #fafafa;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.8);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: white;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.6));
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-success {
+        background-color: #e6ffed;
+        color: #22863a;
+        border: 1px solid #b3e6c1;
+    }
+
+    .alert-error {
+        background-color: #ffebee;
+        color: #e43939;
+        border: 1px solid #ffcdd2;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="settings-container">
+    <div class="settings-card" data-aos="fade-up">
+        <div class="settings-header">
+            <h2><i class="fas fa-cog"></i> Account Settings</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form action="/update_settings" method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" value="{{ session['username'] }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="text" class="form-control" value="{{ session['email'] }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="currency">Currency</label>
+                <select class="form-control" name="currency" id="currency" required>
+                    <option value="GHS" {% if session.get('currency', 'GHS' )=='GHS' %}selected{% endif %}>Ghana Cedi
+                        (GHS)</option>
+                    <option value="USD" {% if session.get('currency', 'GHS' )=='USD' %}selected{% endif %}>US Dollar
+                        (USD)</option>
+                    <option value="EUR" {% if session.get('currency', 'GHS' )=='EUR' %}selected{% endif %}>Euro (EUR)
+                    </option>
+                    <option value="GBP" {% if session.get('currency', 'GHS' )=='GBP' %}selected{% endif %}>British Pound
+                        (GBP)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+[file content end]

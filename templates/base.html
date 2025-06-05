@@ -329,6 +329,9 @@
         <li><a href="/limitn" class="nav-link {% if request.endpoint == 'limitn' %}active{% endif %}">
             <i class="fas fa-chart-line"></i> <span>Budget</span>
           </a></li>
+        <li><a href="/settings" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
+            <i class="fas fa-cog"></i> <span>Settings</span>
+          </a></li>
       </ul>
 
       <div class="user-profile">
@@ -373,8 +376,19 @@
           </a>
         </li>
         <li class="mobile-nav-item">
+          <a href="/settings" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
+            <i class="fas fa-cog"></i> <span>Settings</span>
+          </a>
+        </li>
+
+        <li class="mobile-nav-item">
           <a href="/logout" class="mobile-nav-link">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <i class="fas fa-sign-out-alt"></i> logout~~
+          </a>
+        </li>
+        <li class="mobile-nav-item">
+          <a href="/settings" class="mobile-nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
+            <i class="fas fa-cog"></i> Settings
           </a>
         </li>
       </ul>
