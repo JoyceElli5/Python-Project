@@ -20,6 +20,223 @@
 
 	<!-- Toastify JS -->
 	<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+	<!-- Responsive CSS - Add this without changing existing styles -->
+	<style>
+		/* Responsive styles that work with your existing CSS */
+		@media (max-width: 1024px) {
+			.container {
+				padding: 0 20px;
+			}
+
+			main {
+				flex-direction: column !important;
+				gap: 30px;
+			}
+
+			.content-left,
+			.content-right {
+				width: 100% !important;
+				max-width: 500px;
+				margin: 0 auto;
+			}
+
+			.content-right h1 {
+				font-size: 2.5rem !important;
+				text-align: center;
+			}
+
+			.content-right .subtitle {
+				text-align: center;
+			}
+
+			.benefits {
+				justify-content: center;
+			}
+
+			.cta-buttons {
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: 15px;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.container {
+				padding: 0 15px;
+				min-height: 100vh;
+			}
+
+			header {
+				padding: 15px 0;
+			}
+
+			.logo {
+				font-size: 1.8rem !important;
+				justify-content: center;
+			}
+
+			.analytics-image {
+				width: 30px !important;
+				height: 30px !important;
+			}
+
+			main {
+				padding: 20px 0;
+				gap: 20px;
+			}
+
+			.content-left {
+				order: 1;
+			}
+
+			.content-right {
+				order: 2;
+				text-align: center;
+			}
+
+			.content-right h1 {
+				font-size: 2rem !important;
+				line-height: 1.2;
+				margin-bottom: 15px;
+			}
+
+			.subtitle {
+				font-size: 0.95rem !important;
+				margin-bottom: 20px;
+			}
+
+			.benefits {
+				flex-direction: column;
+				align-items: center;
+				gap: 10px;
+				margin-bottom: 20px;
+			}
+
+			.benefit-item {
+				justify-content: center;
+				text-align: center;
+			}
+
+			.cta-buttons {
+				flex-direction: column;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.cta-buttons .btn {
+				width: 100%;
+				max-width: 250px;
+				text-align: center;
+			}
+
+			.signup-form {
+				padding: 30px 20px !important;
+				margin: 0 auto;
+				width: 100%;
+				max-width: 400px;
+			}
+
+			.form-header h2 {
+				font-size: 1.5rem !important;
+				text-align: center;
+			}
+
+			.input-group {
+				margin-bottom: 20px;
+			}
+
+			.input-group input {
+				width: 100% !important;
+				padding: 12px 15px 12px 45px !important;
+				font-size: 16px !important;
+				/* Prevents zoom on iOS */
+			}
+
+			.input-group img {
+				left: 15px !important;
+			}
+
+			.forgot-password {
+				text-align: center;
+				margin: 15px 0;
+			}
+
+			.form-button .btn {
+				width: 100% !important;
+				padding: 15px !important;
+				font-size: 1rem !important;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.container {
+				padding: 0 10px;
+			}
+
+			.logo {
+				font-size: 1.5rem !important;
+			}
+
+			.analytics-image {
+				width: 25px !important;
+				height: 25px !important;
+			}
+
+			.content-right h1 {
+				font-size: 1.8rem !important;
+			}
+
+			.signup-form {
+				padding: 25px 15px !important;
+			}
+
+			.form-header h2 {
+				font-size: 1.3rem !important;
+			}
+
+			.input-group input {
+				padding: 10px 12px 10px 40px !important;
+			}
+
+			.benefit-text {
+				font-size: 0.9rem !important;
+			}
+		}
+
+		/* Landscape orientation on mobile */
+		@media (max-height: 600px) and (orientation: landscape) {
+			.content-right {
+				display: none;
+			}
+
+			main {
+				justify-content: center;
+			}
+
+			.container {
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
+		}
+
+		/* Touch-friendly improvements */
+		@media (hover: none) and (pointer: coarse) {
+			.btn {
+				min-height: 44px !important;
+			}
+
+			.input-group input {
+				min-height: 44px !important;
+			}
+
+			.forgot-password a {
+				padding: 10px !important;
+			}
+		}
+	</style>
 </head>
 
 <body>
@@ -61,18 +278,6 @@
 						<div class="form-button" data-aos="fade-up" data-aos-delay="600" data-aos-duration="800">
 							<button type="submit" class="btn btn-primary">Login</button>
 						</div>
-
-						<!-- <div class="social-login" data-aos="fade-up" data-aos-delay="700" data-aos-duration="800">
-							<p>OR</p>
-							<div class="social-text"><b>Login with</b></div>
-							<ul class="social-icons">
-								<li><a href="#"><i class="fab fa-facebook" aria-hidden="true"></i></a></li>
-								<li><a href="#"><i class="fab fa-twitter" aria-hidden="true"></i></a></li>
-								<li><a href="#"><i class="fab fa-google" aria-hidden="true"></i></a></li>
-								<li><a href="#"><i class="fab fa-linkedin" aria-hidden="true"></i></a></li>
-								<li><a href="#"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
-							</ul>
-						</div> -->
 					</div>
 				</form>
 			</div>
@@ -107,7 +312,6 @@
 			</div>
 		</main>
 	</div>
-
 
 	<!-- AOS JS -->
 	<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
