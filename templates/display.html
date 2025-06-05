@@ -570,7 +570,7 @@
         <div class="stat-card">
             <i class="fas fa-dollar-sign stat-icon"></i>
             {% set total_amount = expense|sum(attribute='amount') %}
-            <div class="stat-value">GH₵{{ "%.2f"|format(total_amount) }}</div>
+            <div class="stat-value">${{ "%.2f"|format(total_amount) }}</div>
             <div class="stat-label">Total Amount</div>
         </div>
         <div class="stat-card">
@@ -582,7 +582,7 @@
         <div class="stat-card">
             <i class="fas fa-chart-line stat-icon"></i>
             {% set avg_amount = (total_amount / expense|length) if expense|length > 0 else 0 %}
-            <div class="stat-value">GH₵{{ "%.2f"|format(avg_amount) }}</div>
+            <div class="stat-value">${{ "%.2f"|format(avg_amount) }}</div>
             <div class="stat-label">Average per Transaction</div>
         </div>
     </div>
@@ -622,10 +622,10 @@
                 <label><i class="fas fa-dollar-sign"></i> Amount Range</label>
                 <select id="amountFilter">
                     <option value="">All Amounts</option>
-                    <option value="0-50">GH₵0 - GH₵50</option>
-                    <option value="50-100">GH₵50 - GH₵100</option>
-                    <option value="100-500">GH₵100 - GH₵500</option>
-                    <option value="500+">GH₵500+</option>
+                    <option value="0-50">$0 - $50</option>
+                    <option value="50-100">$50 - $100</option>
+                    <option value="100-500">$100 - $500</option>
+                    <option value="500+">$500+</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -698,7 +698,7 @@
                 </div>
             </div>
 
-            <div class="expense-amount">-GH₵{{ "%.2f"|format(row.amount) }}</div>
+            <div class="expense-amount">${{ "%.2f"|format(row.amount) }}</div>
 
             <div class="expense-category">{{ row.category.title() }}</div>
 
