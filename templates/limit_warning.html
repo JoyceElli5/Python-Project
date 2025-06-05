@@ -11,7 +11,7 @@
             <div class="expense-icon" style="background-color: #fee2e2; color: #ef4444; margin: 0 auto 15px;">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <div class="stat-value" style="color: #ef4444;">₵{{ amount }}</div>
+            <div class="stat-value" style="color: #ef4444;">${{ amount }}</div>
             <div class="stat-label">Expense Amount</div>
         </div>
 
@@ -19,7 +19,7 @@
             <div class="expense-icon" style="background-color: #fef3c7; color: #f59e0b; margin: 0 auto 15px;">
                 <i class="fas fa-chart-line"></i>
             </div>
-            <div class="stat-value" style="color: #f59e0b;">₵{{ limit }}</div>
+            <div class="stat-value" style="color: #f59e0b;">${{ limit }}</div>
             <div class="stat-label">Monthly Limit</div>
         </div>
 
@@ -27,7 +27,7 @@
             <div class="expense-icon" style="background-color: #fee2e2; color: #dc2626; margin: 0 auto 15px;">
                 <i class="fas fa-arrow-up"></i>
             </div>
-            <div class="stat-value" style="color: #dc2626;">₵{{ amount - limit }}</div>
+            <div class="stat-value" style="color: #dc2626;">${{ amount - limit }}</div>
             <div class="stat-label">Over Limit</div>
         </div>
     </div>
@@ -40,8 +40,8 @@
             </div>
             <h2 style="color: #dc2626; margin-bottom: 15px; font-size: 24px;">Caution!</h2>
             <p style="font-size: 16px; color: #666; margin-bottom: 30px; line-height: 1.6;">
-                Your expense of <strong style="color: #ef4444;">₵{{ amount }}</strong> exceeds your set monthly limit of
-                <strong style="color: #f59e0b;">₵{{ limit }}</strong>.
+                Your expense of <strong style="color: #ef4444;">${{ amount }}</strong> exceeds your set monthly limit of
+                <strong style="color: #f59e0b;">${{ limit }}</strong>.
                 <br><br>
                 Proceeding with this expense will put you over budget. Would you like to continue anyway?
             </p>

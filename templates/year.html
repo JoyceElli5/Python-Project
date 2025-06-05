@@ -42,7 +42,7 @@
             <div class="card shadow mb-2 bg-white rounded-bottom">
                 <div class="card-body ">
                 <div class="row">
-                    <div class="col-md-6">Food</div>
+                    <div class="col-md-6">🍽️ Food</div>
                     <div id="tfood" class="col-md-6">   {{ t_food}}   </div>
                  </div>
                 </div>
@@ -51,7 +51,7 @@
             <div class="card shadow mb-2 bg-white rounded">
              <div class="card-body">
              <div class="row">
-                 <div class="col-md-6">Entertainment</div>
+                 <div class="col-md-6">🎬 Entertainment</div>
                  <div id="tentertainment" class="col-md-6"> {{ t_entertainment}}   </div>
               </div>
              </div>
@@ -61,7 +61,7 @@
          <div class="card shadow mb-2 bg-white rounded">
              <div class="card-body">
              <div class="row">
-                 <div class="col-md-6">Business</div>
+                 <div class="col-md-6">💼 Business</div>
                  <div id="tbusiness" class="col-md-6"> {{t_business}}   </div>
               </div>
              </div>
@@ -71,7 +71,7 @@
          <div class="card shadow mb-2 bg-white rounded">
              <div class="card-body">
              <div class="row">
-                 <div  class="col-md-6">Rent</div>
+                 <div  class="col-md-6">🏠   Rent</div>
                  <div id="trent" class="col-md-6"> {{  t_rent }}  </div>
               </div>
              </div>
@@ -81,7 +81,7 @@
          <div class="card shadow mb-2 bg-white rounded">
              <div class="card-body">
              <div class="row">
-                 <div class="col-md-6">EMI</div>
+                 <div class="col-md-6">💰 EMI</div>
                  <div id="temi"  class="col-md-6">{{ t_EMI }}   </div>
               </div>
              </div>
@@ -91,7 +91,7 @@
          <div class="card shadow mb-2 bg-white rounded">
              <div class="card-body">
              <div class="row">
-                 <div class="col-md-6">Other</div>
+                 <div class="col-md-6">📦 Other</div>
                  <div id="tother" class="col-md-6"> {{ t_other}}</div>
               </div>
              </div>
@@ -100,7 +100,7 @@
          <div class="card shadow mb-2 btn-outline-danger rounded-pill">
              <div class="card-body">
              <div class="row">
-                 <div class="col-md-6">Total</div>
+                 <div class="col-md-6">📊 Total</div>
                  <div class="col-md-6">₹ {{total}}  </div>
               </div>
              </div>
@@ -120,7 +120,7 @@
          var myChart = new Chart(ctx, {
              type: 'doughnut',
              data: {
-                 labels: ['Food', 'Entertainment', 'Business', 'Rent', 'EMI', 'Other'],
+                 labels: ['🍽️ Food', '🎬 Entertainment', '💼 Business', '🏠 Rent', '💰 EMI', '📦 Other'],
                  datasets: [{
                      label: 'Expenses Chart',
                      data: [food, entertainment, business, rent, emi, other],

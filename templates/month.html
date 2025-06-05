@@ -38,7 +38,7 @@
             <div class="expense-icon" style="background-color: #fee2e2; color: #ef4444; margin: 0 auto 15px;">
                 <i class="fas fa-money-bill-wave"></i>
             </div>
-            <div class="stat-value" style="color: #ef4444;">GH₵{{ "%.2f"|format(total) }}</div>
+            <div class="stat-value" style="color: #ef4444;">${{ "%.2f"|format(total) }}</div>
             <div class="stat-label">Total Spent</div>
         </div>
         <div class="stat-card">
@@ -53,7 +53,7 @@
             <div class="expense-icon" style="background-color: #fef3c7; color: #f59e0b; margin: 0 auto 15px;">
                 <i class="fas fa-calculator"></i>
             </div>
-            <div class="stat-value" style="color: #f59e0b;">GH₵{{ "%.2f"|format(avg_amount) }}</div>
+            <div class="stat-value" style="color: #f59e0b;">${{ "%.2f"|format(avg_amount) }}</div>
             <div class="stat-label">Average Transaction</div>
         </div>
     </div>
@@ -76,7 +76,7 @@
                 {% for row in texpense %}
                 <div class="timeline-item">
                     <div class="timeline-date">{{ row[0] }}</div>
-                    <div class="timeline-amount">GH₵{{ "%.2f"|format(row[1]) }}</div>
+                    <div class="timeline-amount">${{ "%.2f"|format(row[1]) }}</div>
                 </div>
                 {% endfor %}
             </div>
@@ -96,8 +96,8 @@
                         <i class="fas fa-utensils"></i>
                     </div>
                     <div class="category-details">
-                        <div class="category-name">Food</div>
-                        <div class="category-amount">GH₵{{ "%.2f"|format(t_food) }}</div>
+                        <div class="category-name">🍽️ Food</div>
+                        <div class="category-amount">${{ "%.2f"|format(t_food) }}</div>
                     </div>
                 </div>
 
@@ -106,8 +106,8 @@
                         <i class="fas fa-film"></i>
                     </div>
                     <div class="category-details">
-                        <div class="category-name">Entertainment</div>
-                        <div class="category-amount">GH₵{{ "%.2f"|format(t_entertainment) }}</div>
+                        <div class="category-name">🎬 Entertainment</div>
+                        <div class="category-amount">${{ "%.2f"|format(t_entertainment) }}</div>
                     </div>
                 </div>
 
@@ -116,8 +116,8 @@
                         <i class="fas fa-briefcase"></i>
                     </div>
                     <div class="category-details">
-                        <div class="category-name">Business</div>
-                        <div class="category-amount">GH₵{{ "%.2f"|format(t_business) }}</div>
+                        <div class="category-name">💼 Business</div>
+                        <div class="category-amount">${{ "%.2f"|format(t_business) }}</div>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@
                     </div>
                     <div class="category-details">
                         <div class="category-name">Rent</div>
-                        <div class="category-amount">GH₵{{ "%.2f"|format(t_rent) }}</div>
+                        <div class="category-amount">${{ "%.2f"|format(t_rent) }}</div>
                     </div>
                 </div>
 
@@ -136,8 +136,8 @@
                         <i class="fas fa-credit-card"></i>
                     </div>
                     <div class="category-details">
-                        <div class="category-name">EMI</div>
-                        <div class="category-amount">GH₵{{ "%.2f"|format(t_EMI) }}</div>
+                        <div class="category-name">💰 EMI</div>
+                        <div class="category-amount">${{ "%.2f"|format(t_EMI) }}</div>
                     </div>
                 </div>
 
@@ -146,8 +146,8 @@
                         <i class="fas fa-tag"></i>
                     </div>
                     <div class="category-details">
-                        <div class="category-name">Other</div>
-                        <div class="category-amount">GH₵{{ "%.2f"|format(t_other) }}</div>
+                        <div class="category-name">📦 Other</div>
+                        <div class="category-amount">${{ "%.2f"|format(t_other) }}</div>
                     </div>
                 </div>
 
@@ -161,7 +161,7 @@
                             <div class="category-name"
                                 style="color: rgba(59, 130, 246, 0.8); font-weight: 700; font-size: 18px;">Total</div>
                             <div class="category-amount"
-                                style="color: rgba(59, 130, 246, 0.8); font-size: 20px; font-weight: 700;">GH₵{{
+                                style="color: rgba(59, 130, 246, 0.8); font-size: 20px; font-weight: 700;">${{
                                 "%.2f"|format(total) }}</div>
                         </div>
                     </div>
@@ -217,7 +217,7 @@
                             <span>{{ transaction[5] }}</span>
                         </div>
                     </div>
-                    <div class="expense-amount">GH₵{{ "%.2f"|format(transaction[4]) }}</div>
+                    <div class="expense-amount">${{ "%.2f"|format(transaction[4]) }}</div>
                     <div class="expense-category">{{ transaction[6] }}</div>
                     <div class="expense-actions">
                         <a href="/edit/{{ transaction[0] }}" class="btn-edit">Edit</a>
