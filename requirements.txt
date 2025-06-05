@@ -5,6 +5,8 @@ jsonify
 mysql-connector-python
 flask_mysqldb
 sendgrid
+gunicorn
+
 
 # New security dependencies
 Werkzeug>=2.3.7
